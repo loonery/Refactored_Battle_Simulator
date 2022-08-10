@@ -1,0 +1,3 @@
+"Armand's Hammer", 100, 100, .85, "Clunky but powerful."
+"Longsword of World's End", 75, 80, .8, "Balanced and effective melee weapon."
+"Engraved Dagger", 10, 20, 120, "Light dagger with low damage, but easy to use, and likely to hit."
