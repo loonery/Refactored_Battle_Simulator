@@ -16,13 +16,15 @@ public interface ICharacter {
 
 
     /* ############################ Getter Methods ############################ */
-    public void getShootingAccuracyModifer();
+    public double getShootingAccuracyModifer();
 
-    public void getWeaponProwess();
+    public double getWeaponProwess();
 
-    public IWeapon getEquippedWeapon();
+    public IWeapon getWeapon();
 
     public String getName();
 
     public void setWeapon(IWeapon weapon);
+
+    int getStrength();
 }

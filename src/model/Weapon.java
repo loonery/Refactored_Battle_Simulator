@@ -8,10 +8,9 @@ import java.util.Random;
  */
 public class Weapon implements IWeapon {
 
-    private String name;                // each weapon has a unique namey
-    private String description;         // each weapon should have a description
-    private int meleeStrength;          // each weapon has a meleeStrength, melee weapons and non-melee weapons
-    private int rangedStrength;         // each weapon has a meleeStrength, ranged weapons and non-ranged weapons
+    private final String name;                // each weapon has a unique name
+    private final String description;         // each weapon should have a description
+    private final int meleeStrength;          // each weapon has a meleeStrength, melee weapons and non-melee weapons
     private int durability;             // durability acts as the "hit points" of a Weapon object
     private double encumbrance;         // the encumbrance of a weapon impacts the user's ability to land an attack
     private ICharacter user;            // the user of this weapon
@@ -66,36 +65,27 @@ public class Weapon implements IWeapon {
             throw new NullPointerException("Cannot roll damage on a weapon that has no user");
         }
 
-        // the chance of landing an attack is the determined by the weapon's encumbrance
-        // and the user's prowess with a melee weapon
-        double hitChance;
-        hitChance = this.getEncumbrance() * this.getUser().getWeaponProwess();
-
-        // determine whether this shot will hit with RGN
-        Random rand = new Random();
-        double roll = rand.nextFloat();
-        boolean attackHits = (roll <= hitChance);
-
-        // todo: Factor this out when it makes sense to do so. We are no longer following a separation
-        //  of concerns.
-        // it might make sense to apply the wear during a character's attack method, not during
-        // the calculate damage method
-
         // if the shot hits, apply weapon wear and calculate random damage
-        if (attackHits) {
-            this.applyWear();
-            return (rand.nextFloat(LOWER_BOUND_MELEE_DAMAGE, this.getMeleeStrength()));
-        }
-        // return -1 otherwise, to indicate that the attack missed
-        return -1.00F;
+        Random rand = new Random();
+        return (rand.nextFloat(LOWER_BOUND_MELEE_DAMAGE, this.getMeleeStrength()));
     }
 
+    public double rollHitChance(){
 
+        // the chance of landing an attack is the determined by the weapon's encumbrance
+        // and the user's prowess with a melee weapon
+        return this.getEncumbrance() * this.getUser().getWeaponProwess();
+    }
 
     /* ############################ Public Getter Methods ############################ */
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
     }
 
     public ICharacter getUser() {
@@ -118,6 +108,30 @@ public class Weapon implements IWeapon {
         return this.broken;
     }
 
+    @Override
+    public void handleMiss() {
+    }
+
+    @Override
+    public void handleHit() {
+
+        // When a weapon attack hits, wear is applied, and if it is broken thereafter,
+        // the weapon tells its user
+        this.applyWear();
+        if (this.isBroken()) {
+
+            // the character will switch to their bare hands
+            IWeapon bareHands = new Weapon("Bare Hands", this.getUser().getStrength(), Integer.MAX_VALUE,
+                    0, this.getUser().getName() + "'s Bare Hands");
+
+            // set the user's weapon to their hands, and set that
+            // this weapon now has no (null) user
+            this.getUser().setWeapon(bareHands);
+            this.setUser(null);
+
+        }
+    }
+
     /* ############################ Public Setter Methods ############################ */
 
     /**
@@ -126,18 +140,10 @@ public class Weapon implements IWeapon {
      * @param user the character to which this weapon will be bound.
      */
     public void setUser(ICharacter user) {
-
         // permits null values in instances when the weapon has no user
         this.user = user;
     }
 
-    protected void setBroken(boolean broken) {
-        this.broken = broken;
-    }
-
-    protected void handleBroken() {
-        this.setUser(null);
-    }
 
     /**
      * Applies randomly generated wear to the weapon and, if durability goes below 0, sets its status to broken.
@@ -148,15 +154,10 @@ public class Weapon implements IWeapon {
         // decrement the durability
         this.durability -= (rand.nextInt(LOWER_BOUND_WEAR_APPLIED, UPPER_BOUND_WEAR_APPLIED));
 
-        // if after the weapon is used it is broken, change its isBroken status and print a message
+        // if after the weapon is used it is broken, change its isBroken status
         if (this.getDurability() <= DURABILITY_BREAKING_POINT) {
             this.broken = true;
         }
-
-        if (this.isBroken()) {
-            handleBroken();
-        }
-
     }
 
 

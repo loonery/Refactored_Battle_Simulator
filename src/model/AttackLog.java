@@ -11,6 +11,10 @@ public class AttackLog implements IAttackLog {
     private IWeapon attackerWeapon;
     private ICharacter defender;
     private IWeapon defenderWeapon;
+
+
+    private boolean attackerWeaponBreak = false;
+    private
     private boolean attackHit = false;
     private double damageDone = -1.00;
 
@@ -34,5 +38,9 @@ public class AttackLog implements IAttackLog {
 
     public void setDamageDone(double damageDone) {
         this.damageDone = damageDone;
+    }
+
+    public void setAttackerWeaponBreak() {
+        this.attackerWeaponBreak = true;
     }
 }

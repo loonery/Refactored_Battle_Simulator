@@ -7,10 +7,10 @@ import java.util.Random;
  */
 public class RangedWeapon extends Weapon {
 
-    private int rangedStrength;         // the analog to meleeStrength in melee weapons
-    private double accuracy;            // the ease of ability to hit an attack with this weapon
     private int ammunition;             // the ammunition that this weapon holds
-    private IWeapon meleeVersion;       // every ranged weapon may be used as a melee weapon
+    private final int rangedStrength;         // the analog to meleeStrength in melee weapons
+    private final double accuracy;            // the ease of ability to hit an attack with this weapon
+    private final IWeapon meleeVersion;       // every ranged weapon may be used as a melee weapon
 
     //todo: implement melee damage functions for the ranged weapon class
 
@@ -34,7 +34,7 @@ public class RangedWeapon extends Weapon {
         // pass information to super constructor
         super(name, meleeStrength, durability, encumbrance, description);
 
-        // guard values
+        // guard against inappropriate values
         if (ammunition <= 0 || rangedStrength <= 0 || accuracy <= 0) {
             throw new IllegalArgumentException("Ranged weapon values may not be initialized to 0 or less.");
         }
@@ -49,7 +49,7 @@ public class RangedWeapon extends Weapon {
     }
 
     /**
-     * @return the damage value rolled from an attack.
+     * @return the damage value rolled when an attack with this weapon hits.
      */
     @Override
     public double rollWeaponDamage() {
@@ -60,60 +60,24 @@ public class RangedWeapon extends Weapon {
         }
 
         Random rand = new Random();
+        return (rand.nextFloat(LOWER_BOUND_RANGED_DAMAGE, this.getRangedStrength()));
 
-        // the chance of hitting a shot is the determined by the weapon's inherent accuracy
-        // and the user's accuracy with a ranged weapon
-        double hitChance;
-        hitChance = this.getUser().getShootingAccuracyModifer() * this.accuracy;
-
-        // determine whether this shot will hit with RGN
-        double roll = rand.nextFloat();
-        boolean attackHits = (roll <= hitChance);
-
-        // todo: Factor this out when it makes sense to do so. We are no longer following a separation
-        //  of concerns.
-            // it might make sense to apply the wear during a character's attack method, not during
-            // the calculate damage method
-
-        // Apply wear and decrement ammunition regardless of shot outcome.
-        this.applyWear();
-        this.useAmmunition();
-
-        // If this weapon breaks, the weapon tells the user to use this weapon's melee manifestation
-        // todo: think about how to extract the side effect of a ranged weapon breaking or running out of ammo
-        //  in the attack log
-        if (this.isBroken()) {
-            this.handleBroken();
-        }
-
-        // if the shot hits, apply weapon wear and calculate random damage
-        if (attackHits) {
-            return (rand.nextFloat(LOWER_BOUND_RANGED_DAMAGE, this.getRangedStrength()));
-        }
-        // return -1 otherwise, to indicate that the attack missed
-        return -1.00F;
     }
 
-    protected void handleBroken() {
-        this.getUser().setWeapon(this.getMeleeVersion());
-        this.setUser(null);
-    }
+
 
     /**
      * Decrements the ammunition that is held by this weapon. If ammunition is considered
      */
     private void useAmmunition() {
         this.ammunition -= 1;
-        if (ammunition <= 0) {
-            this.setBroken(true);
-        }
     }
 
     private IWeapon getMeleeVersion() {
         return this.meleeVersion;
     }
 
-    public int getAmmunition() {
+    public Integer getAmmunition() {
         return this.ammunition;
     }
 
@@ -126,4 +90,39 @@ public class RangedWeapon extends Weapon {
     public int getRangedStrength() {
         return this.rangedStrength;
     }
+
+    @Override
+    public void handleHit() {
+
+        // Apply wear to the ranged weapon and use a unit of ammunition
+        this.applyWear();
+        this.useAmmunition();
+
+        // if the weapon is broken or out of ammunition...
+        if (this.isBroken() || this.getAmmunition() == 0) {
+
+            // set the user's weapon to the melee version of this ranged weapon.
+            // The rationale of this decision is that a weapon that breaks
+            // from ranged-use is likely not entirely ineffective as a melee
+            // weapon
+            this.getUser().setWeapon(this.getMeleeVersion());
+            this.setUser(null);
+        }
+    }
+
+    @Override
+    public void handleMiss() {
+
+        // for ranged weapons, a hit and a miss apply the same wear and
+        // ammunition loss
+        this.handleHit();
+    }
+
+    @Override
+    public double rollHitChance() {
+        // the chance of hitting a shot is the determined by the weapon's inherent accuracy
+        // and the user's accuracy with a ranged weapon
+        return this.getUser().getShootingAccuracyModifer() * this.accuracy;
+    }
+
 }

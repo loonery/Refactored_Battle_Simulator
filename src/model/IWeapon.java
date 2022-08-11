@@ -2,18 +2,28 @@ package model;
 
 public interface IWeapon {
 
-    public double rollWeaponDamage();
 
-    public int getDurability();
 
-    public boolean isBroken();
+    ICharacter getUser();
 
-    public Integer getAmmunition();
+    String getName();
 
-    public String getName();
+    String getDescription();
 
-    public void setUser(ICharacter user);
+    int getDurability();
 
-    public ICharacter getUser();
+    double rollWeaponDamage();
+
+    double rollHitChance();
+
+    boolean isBroken();
+
+    void handleMiss();
+
+    void handleHit();
+
+    void applyWear();
+
+    void setUser(ICharacter user);
 
 }

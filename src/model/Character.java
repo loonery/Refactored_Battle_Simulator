@@ -74,34 +74,31 @@ public class Character implements ICharacter {
             throw new IllegalArgumentException("This character cannot attack a null character");
         }
 
-        // use the character's attributes and the weapon they have equipped to calculate damage
-        double weaponDamageRoll = this.getWeapon().rollWeaponDamage();
+        // determine whether this attack will hit with RGN.
+        // attack will hit when the roll value is within the bounds of the
+        // hit chance.
+        Random rand = new Random();
+        double roll = rand.nextFloat();
+        boolean attackHits = (roll <= this.getWeapon().rollHitChance());
 
-        // If the model.Character's attack with their weapon hit...
-        if (weaponDamageRoll > 0.00) {
+        // If the Character's attack hits their opponent...
+        if (attackHits) {
+
+            // Handles the case where the attack hits
+            this.getWeapon().handleHit();
+
+            // use the character's attributes and the weapon they have equipped to calculate damage
+            double weaponDamageRoll = this.getWeapon().rollWeaponDamage();
 
             // the total damage is the total weapon damage + the randomly drawn strength
-            Random rand = new Random();
             double totalAttackDamage = weaponDamageRoll + rand.nextFloat(LOWER_BOUND_STRENGTH_DAMAGE, this.getStrength());
             defender.takeDamage(totalAttackDamage);
 
-            // store information about the attack that hit in the attack log
-            attackLog.setDamageDone(totalAttackDamage);
-            attackLog.setAttackHit(true);
-
-            // if during the attack the weapon broke...
-            // todo: when the weapon is ranged, the character should immediately switch to the melee weapon version
-            if (this.getWeapon().isBroken()) {
-
-                // the character will switch to their bare hands
-                IWeapon bareHands = new Weapon("Bare Hands", this.getStrength(), Integer.MAX_VALUE,
-                        0, this.getName() + "'s Bare Hands");
-                bareHands.setUser(this);
-
-                // have the "Bare Hands" weapon point to the user and the user point to "Bare Hands"
-                bareHands.setUser(this);
-                this.setWeapon(bareHands);
             }
+        } else {
+
+            this.getWeapon().handleMiss();
+
         }
 
         // Every attack on a character returns information about what happened in the attack
@@ -165,15 +162,6 @@ public class Character implements ICharacter {
      */
     public int getStrength() {
         return this.strength;
-    }
-
-    /**
-     * Returns this character's equipped weapon if they have one. Otherwise, returns null.
-     *
-     * @return this character's equipped weapon if they have one.
-     */
-    public IWeapon getEquippedWeapon() {
-        return equippedWeapon;
     }
 
     /**
