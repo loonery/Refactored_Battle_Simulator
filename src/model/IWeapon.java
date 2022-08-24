@@ -1,5 +1,8 @@
 package model;
 
+/**
+ * The interface Weapon.
+ */
 public interface IWeapon {
 
 
@@ -18,9 +21,9 @@ public interface IWeapon {
 
     boolean isBroken();
 
-    void handleMiss();
+    void handleMiss(IAttackLog attackLog);
 
-    void handleHit();
+    void handleHit(IAttackLog attackLog);
 
     void applyWear();
 

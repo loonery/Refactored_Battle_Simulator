@@ -13,11 +13,16 @@ public class AttackLog implements IAttackLog {
     private IWeapon defenderWeapon;
 
 
+    // Initial values of the attack prior to more information
     private boolean attackerWeaponBreak = false;
-    private
     private boolean attackHit = false;
     private double damageDone = -1.00;
 
+
+    private boolean weaponBroke = false;
+    private IWeapon newWeapon = null;
+    private boolean defenderFelled = false;
+    private Boolean ammunitionGone = false;
 
     public AttackLog(ICharacter attacker, ICharacter defender) {
 
@@ -26,21 +31,38 @@ public class AttackLog implements IAttackLog {
         }
 
         this.attacker = attacker;
-        this.attackerWeapon = attacker.getEquippedWeapon();
+        this.attackerWeapon = attacker.getWeapon();
         this.defender = defender;
-        this.defenderWeapon = defender.getEquippedWeapon();
+        this.defenderWeapon = defender.getWeapon();
 
+    }
+
+    public void setAmmunitionGone(Boolean ammunitionGone) {
+        this.ammunitionGone = ammunitionGone;
     }
 
     public void setAttackHit(boolean attackHit) {
         this.attackHit = attackHit;
     }
 
+    public void setAttackerWeaponBreak(boolean attackerWeaponBreak) {
+        this.attackerWeaponBreak = attackerWeaponBreak;
+    }
+
     public void setDamageDone(double damageDone) {
         this.damageDone = damageDone;
     }
 
-    public void setAttackerWeaponBreak() {
-        this.attackerWeaponBreak = true;
+    public void setDefenderFelled(boolean defenderFelled) {
+        this.defenderFelled = defenderFelled;
     }
+
+    public void setNewWeapon(IWeapon newWeapon) {
+        this.newWeapon = newWeapon;
+    }
+
+    public void setWeaponBroke(boolean weaponBroke) {
+        this.weaponBroke = weaponBroke;
+    }
+
 }

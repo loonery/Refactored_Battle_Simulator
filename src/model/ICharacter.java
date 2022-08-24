@@ -3,28 +3,35 @@ package model;
 public interface ICharacter {
 
     /**
-     * model.Character types must be able to battle against one another.
      *
-     * @param combatantA one of the two combatants in the battle simulator
-     * @param combatantB one of the two combatants in the battle simulator
+     * @param defender
+     * @return
+     * @throws IllegalArgumentException
      */
     public IAttackLog attack(ICharacter defender) throws IllegalArgumentException;
 
-
-
-    public void takeDamage(double damage) throws IllegalArgumentException;
-
-
     /* ############################ Getter Methods ############################ */
-    public double getShootingAccuracyModifer();
+    public double getShootingAccuracyModifier();
 
-    public double getWeaponProwess();
+    public String getBio();
 
-    public IWeapon getWeapon();
+    public double getCombatProwess();
+
+    public Boolean getFightStatus();
+
+    boolean getMoveState();
 
     public String getName();
 
+    int getStrength();
+
+    public IWeapon getWeapon();
+
+    int move(int fighterDistance);
+
+    void setMoveState(boolean moveState);
+
     public void setWeapon(IWeapon weapon);
 
-    int getStrength();
+    public void takeDamage(double damage) throws IllegalArgumentException;
 }
