@@ -15,6 +15,10 @@ public class RangedWeapon extends Weapon {
     //todo: implement melee damage functions for the ranged weapon class
     private int ammunition;             // the ammunition that this weapon holds
 
+    /* ############################################################################### */
+    /* ############################ Constructor ############################ */
+    /* ############################################################################### */
+
     /**
      * Creates a Weapon object implementing the IWeapon object to be used by a Character implementing class.
      * A Weapon object's attributes will influence a character's attack
@@ -47,6 +51,10 @@ public class RangedWeapon extends Weapon {
                                        this.getEncumbrance(), this.getName() + "'s melee manifestation");
     }
 
+    /* ############################################################################### */
+    /* ############################ State Getter Methods ############################ */
+    /* ############################################################################### */
+
     public Integer getAmmunition() {
         return this.ammunition;
     }
@@ -69,6 +77,10 @@ public class RangedWeapon extends Weapon {
     private int getRangedStrength() {
         return this.rangedStrength;
     }
+
+    /* ############################################################################### */
+    /* ############################ Combat Methods ############################ */
+    /* ############################################################################### */
 
     /**
      * Controls behavior for a RangedWeapon hitting an attack, and stores the information about the successful
@@ -158,6 +170,10 @@ public class RangedWeapon extends Weapon {
         return (rand.nextFloat(LOWER_BOUND_RANGED_DAMAGE, this.getRangedStrength()));
 
     }
+
+    /* ############################################################################### */
+    /* ############################ State Modifier Methods ############################ */
+    /* ############################################################################### */
 
     /**
      * Links this weapon with some user and the user with some weapon. Sets the moveState of the
