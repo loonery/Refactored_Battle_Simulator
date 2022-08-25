@@ -1,15 +1,20 @@
 package controller;
 
 import model.IThunderdome;
+import view.IThunderdomeView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 
 public interface IThunderdomeController {
 
     IThunderdome getModel();
 
-    void loadModel(File gameContents);
+    IThunderdomeView getView();
 
-    void run();
+    void loadModel(Path gameContents) throws FileNotFoundException;
+
+    void run() throws InterruptedException;
     
 }
