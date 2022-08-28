@@ -1,5 +1,7 @@
 package controller;
 
+import model.IAttackLog;
+import model.ICharacter;
 import model.IThunderdome;
 import view.IThunderdomeView;
 
@@ -9,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.MissingResourceException;
 import java.util.Scanner;
 
@@ -43,50 +46,74 @@ public class ThunderdomeController implements IThunderdomeController {
         this.thunderdomeInstance = thunderdomeInstance;
         this.thunderdomeView = thunderdomeView;
         this.loadModel(Path.of((GAME_CONTENT_PATH)));
-
     }
 
 
-    /* ##################################################################### */
+    /* ################################################################################# */
     /* ############################ Simulation-Loop Methods ############################ */
-    /* ##################################################################### */
+    /* ################################################################################# */
 
     /**
      * Kicks off the Thunderdome game instance and renders its information through use of the View.
      */
     public void run() throws InterruptedException {
 
-        // todo: implement this method
         this.thunderdomeView.displayWelcomeScreen();
 
-        // todo: display first character selection screen for selecting first
-        //  combatants
-        this.characterSelection();
+        // select the first fighter that others will be pitted against
+        this.readyFighter();
 
-        // todo: load fighters into the currentFighters array via the model
+        // todo: make output dynamic so that the user can see the fighter's name
+        while (this.getModel().fightersRemaining()) {
 
-
-        // todo: game loop
-        while (thunderdomeInstance.fightersRemaining()) {
+            // Select a fighter for every battle
+            readyFighter();
 
             // todo: have characters in the model battle
+            ArrayList<IAttackLog> battleLog = (ArrayList<IAttackLog>) this.getModel().battle();
 
+            // render each attack that takes place during the battle
+            for (IAttackLog attackLog : battleLog) {
+                Thread.sleep(2000);
+                this.getView().renderAttackLog(attackLog);
+            }
 
+            // remove the fighter who was defeated from the currentFighters
+            // array
+            this.getView().nextChallenger();
+            this.getModel().removeDefeatedFighter();
         }
 
+        // reaching this point in execution means that there is only one character standing.
+        this.getView().pronounceVictor(this.getModel().getVictoriousFighter());
+    }
+
+    private void readyFighter() {
+
+        // todo: make some distinction between selecting the first challenger, and
+        //  asking the user to
+
+        // display the characters available for selection
+        this.getView().displayFighterSelectionScreen(this.getModel().getFightersRemaining());
+        ICharacter selectedCharacter = this.characterSelection();
+
+        // Display the weapons available to apply to the character
+        this.getView().displayWeaponSelectionScreen(this.getModel().getWeaponsRack(), selectedCharacter);
+        this.weaponSelection(selectedCharacter);
 
     }
 
-    private void weaponSelection() {
+    /**
+     *
+     * @param user
+     */
+    private void weaponSelection(ICharacter user) {
 
+        // Select the weapon and give it to the selected character
         Scanner scanner = new Scanner(System.in);
+        int selectedWeapon = scanner.nextInt() - 1;
+        this.getModel().armCharacter(selectedWeapon, user);
 
-        // display the weapon information to the user from the view
-        this.getView().displayWeaponSelectionScreen(this.getModel().getWeaponsRack());
-
-        // apply the
-        int selectedWeapon = scanner.nextInt();
-        this.getModel().removeWeapon(selectedWeapon);
 
         // todo: need to apply the weapon to the correct person.
 
@@ -95,16 +122,14 @@ public class ThunderdomeController implements IThunderdomeController {
     /**
      * Regulates the selection of an ICharacter in the Thunderdome Game Loop.
      */
-    private void characterSelection() {
+    private ICharacter characterSelection() {
+
+        // todo: guard against out of bounds input, or otherwise incorrect input
+
+        // place the selected fighter into the arena
         Scanner scanner = new Scanner(System.in);
-
-        // display the characters available for selection
-        this.getView().displayFighterSelectionScreen(this.getModel().getFightersRemaining());
-
-        // get
-        int selectedCharacter = scanner.nextInt();
-
-        //todo: finish character selection loop
+        int selectedCharacter = scanner.nextInt() - 1;
+        return this.getModel().placeFighterIntoArena(selectedCharacter);
 
     }
 
@@ -147,6 +172,8 @@ public class ThunderdomeController implements IThunderdomeController {
         // get the directory's contents as a directory stream
         try (DirectoryStream<Path> gameContent = Files.newDirectoryStream(gameContentFolder)) {
 
+            // todo: could factor out the different load methods into one method
+
             // load the contents of each file which map to loading information into to different portions of the model.
             for (Path gameFile : gameContent) {
                 switch (String.valueOf(gameFile.getFileName())) {
@@ -188,8 +215,19 @@ public class ThunderdomeController implements IThunderdomeController {
             String line = scanner.nextLine();
             String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
-            // add the character argued from a line in the charactersFile
-            this.getModel().addCharacter(tokenizedLine);
+            // Iterate over and clean the tokenized input...
+            String[] argumentsArray = new String[tokenizedLine.length];
+            for (int i = 0; i < argumentsArray.length; i++)  {
+
+                String argument = tokenizedLine[i].strip();
+                argument = argument.replaceAll("\"", "");
+                argumentsArray[i] = argument;
+
+            }
+
+            // pass the Character constructor arguments in each line of
+            // the CharactersFile.
+            this.getModel().addCharacter(argumentsArray);
 
         }
     }
@@ -219,8 +257,19 @@ public class ThunderdomeController implements IThunderdomeController {
             String line = scanner.nextLine();
             String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
+            // Iterate over and clean the tokenized input...
+            String[] argumentsArray = new String[tokenizedLine.length];
+            for (int i = 0; i < argumentsArray.length; i++)  {
+
+                String argument = tokenizedLine[i].strip();
+                argument = argument.replaceAll("\"", "");
+                argumentsArray[i] = argument;
+
+
+            }
+
             // add the character argued from a line in the charactersFile
-            this.getModel().addMeleeWeapon(tokenizedLine);
+            this.getModel().addMeleeWeapon(argumentsArray);
 
         }
 
@@ -251,10 +300,21 @@ public class ThunderdomeController implements IThunderdomeController {
             String line = scanner.nextLine();
             String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
+            // Iterate over and clean the tokenized input...
+            String[] argumentsArray = new String[tokenizedLine.length];
+            for (int i = 0; i < argumentsArray.length; i++)  {
+                String argument = tokenizedLine[i].strip();
+                argument = argument.replaceAll("\"", "");
+                argumentsArray[i] = argument;
+            }
+
+
             // add the character argued from a line in the charactersFile
-            this.getModel().addRangedWeapon(tokenizedLine);
+            this.getModel().addRangedWeapon(argumentsArray);
 
         }
     }
+
+
 
 }

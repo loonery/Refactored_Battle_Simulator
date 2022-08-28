@@ -44,9 +44,15 @@ public class Weapon implements IWeapon {
         }
 
         // bound integer inputs
-        if (meleeStrength <= 0 || durability <= 0 || encumbrance <= 0) {
-            throw new IllegalArgumentException("Cannot initialize weapon attributes at 0 or less");
+        if (meleeStrength <= 0 || durability <= 0 || encumbrance < 0) {
+            throw new IllegalArgumentException("meleeStrength and durability must be greater than 0. "
+                    + "Encumbrance must be greater than or equal to 0.00");
         }
+
+
+        // 100, 80, 20
+
+
 
         this.name = name;
         this.meleeStrength = meleeStrength;
@@ -168,13 +174,13 @@ public class Weapon implements IWeapon {
 
             // the character will switch to their bare hands
             IWeapon bareHands = new Weapon("Bare Hands", this.getUser().getStrength(), Integer.MAX_VALUE,
-                    0, this.getUser().getName() + "'s Bare Hands");
+                    1.00, this.getUser().getName() + "'s Bare Hands");
             attackLog.setNewWeapon(bareHands);
 
             // set the user's weapon to their hands, and set that
             // this weapon now has no (null) user
+            bareHands.setUser(this.getUser());
             this.getUser().setWeapon(bareHands);
-            this.setUser(null);
         }
     }
 

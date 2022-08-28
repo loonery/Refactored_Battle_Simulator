@@ -1,5 +1,6 @@
 package view;
 
+import model.IAttackLog;
 import model.ICharacter;
 import model.IWeapon;
 
@@ -8,24 +9,31 @@ import java.util.List;
 
 public interface IThunderdomeView {
 
-    void displayWelcomeScreen() throws InterruptedException;
-
-    void displayMissedMelee();
+    void displayFighterSelectionScreen(List<ICharacter> fighters);
 
     void displayHitMelee();
 
-    void displayMissedRanged();
-
     void displayHitRanged();
-
-    void displayMovement();
 
     void displayMeleeCombat();
 
-    void displayWeaponBreak();
+    void displayMissedMelee();
 
-    void displayFighterSelectionScreen(List<ICharacter> fighters);
+    void displayMissedRanged();
 
-    void displayWeaponSelectionScreen(List<IWeapon> weapons);
+    void displayMovement();
 
+    void displayBareHands();
+
+    void displayWeaponBreak(IAttackLog attackLog, StringBuilder renderedAttackLog);
+
+    void displayWeaponSelectionScreen(List<IWeapon> weapons, ICharacter characterToArm);
+
+    void displayWelcomeScreen() throws InterruptedException;
+
+    void nextChallenger();
+
+    void pronounceVictor(ICharacter victor);
+
+    void renderAttackLog(IAttackLog attackLog);
 }

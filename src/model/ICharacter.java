@@ -8,7 +8,7 @@ public interface ICharacter {
      * @return
      * @throws IllegalArgumentException
      */
-    public IAttackLog attack(ICharacter defender) throws IllegalArgumentException;
+    public void attack(ICharacter defender, IAttackLog attackLog) throws IllegalArgumentException;
 
     /* ############################ Getter Methods ############################ */
     public double getShootingAccuracyModifier();
@@ -17,9 +17,9 @@ public interface ICharacter {
 
     public double getCombatProwess();
 
-    public Boolean getFightStatus();
+    public Boolean inTheFight();
 
-    boolean getMoveState();
+    public boolean getMoveState();
 
     public String getName();
 
@@ -27,7 +27,7 @@ public interface ICharacter {
 
     public IWeapon getWeapon();
 
-    int move(int fighterDistance);
+    int move(int fighterDistance, IAttackLog attackLog);
 
     void setMoveState(boolean moveState);
 

@@ -2,18 +2,44 @@ package model;
 
 public interface IAttackLog {
 
-    public void setAmmunitionGone(Boolean ammunitionGone);
+    boolean getAmmunitionGone();
 
-    public void setAttackHit(boolean attackHit);
+    ICharacter getAttacker();
 
-    public void setAttackerWeaponBreak(boolean attackerWeaponBreak);
+    boolean getAttackerMoveState();
 
-    public void setDamageDone(double damageDone);
+    IWeapon getAttackerWeapon();
 
-    public void setDefenderFelled(boolean defenderFelled);
+    double getDamageDone();
 
-    public void setNewWeapon(IWeapon newWeapon);
+    ICharacter getDefender();
 
-    public void setWeaponBroke(boolean weaponBroke);
+    int getDistanceBetween();
+
+    IWeapon getNewWeapon();
+
+    boolean isAttackHit();
+
+    boolean isAttackerWeaponBreak();
+
+    boolean isDefenderFelled();
+
+    boolean rangedClosed();
+
+    void setAmmunitionGone(Boolean ammunitionGone);
+
+    void setAttackHit(boolean attackHit);
+
+    void setAttackerWeaponBreak(boolean attackerWeaponBreak);
+
+    void setDamageDone(double damageDone);
+
+    void setDefenderFelled(boolean defenderFelled);
+
+    void setDistanceBetween(int distanceBetween);
+
+    void setNewWeapon(IWeapon newWeapon);
+
+    void setRangeClosed(boolean rangeClosed);
 
 }

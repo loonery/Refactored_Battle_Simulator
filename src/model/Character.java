@@ -1,5 +1,4 @@
 package model;
-
 import java.util.Random;
 
 /**
@@ -23,7 +22,7 @@ public class Character implements ICharacter {
     private Boolean moveState = true;
     private int hitPoints = 100;
     private IWeapon equippedWeapon;
-    private Boolean inTheFight;
+    private boolean inTheFight = true;  // Characters always start as being able to be "in the fight"
 
 
     /* ############################ Constructor ############################ */
@@ -47,15 +46,21 @@ public class Character implements ICharacter {
         }
 
         // bound integer inputs
-        if (strength <= 0 || walkingSpeed <= 0 || hitPoints <= 0 || combatProwess <= 0) {
+        if (strength <= 0 || walkingSpeed <= 0 || combatProwess < 0 || shootingAccuracyModifier < 0) {
             throw new IllegalArgumentException("Cannot initialize combat attributes at 0");
         }
+
+        // todo: upper bound these ranges too
 
         this.name = name;
         this.strength = strength;
         this.walkingSpeed = walkingSpeed;
-        this.shootingAccuracyModifier = shootingAccuracyModifier;
         this.bio = bio;
+
+        // these attributes may be = 0, reflecting character who are inept with
+        // certain weapon types
+        this.combatProwess = combatProwess;
+        this.shootingAccuracyModifier = shootingAccuracyModifier;
 
     }
 
@@ -68,15 +73,13 @@ public class Character implements ICharacter {
      *
      * @param defender the model.ICharacter defending from an attack against this character.
      */
-    public AttackLog attack(ICharacter defender, int fighterDistance) throws IllegalArgumentException {
+    @Override
+    public void attack(ICharacter defender, IAttackLog attackLog) throws IllegalArgumentException {
 
         // An attack cannot be conducted on a null character
         if (defender == null) {
             throw new IllegalArgumentException("This character cannot attack a null character");
         }
-
-        // begin a new attack log containing the characters taking part in the fight
-        AttackLog attackLog = new AttackLog(this, defender);
 
         // determine whether this attack will hit with RGN.
         // attack will hit when the roll value is within the bounds of the
@@ -97,7 +100,12 @@ public class Character implements ICharacter {
             // the total damage is the total weapon damage + the character's randomly drawn strength
             double totalAttackDamage = weaponDamageRoll + rand.nextFloat(LOWER_BOUND_STRENGTH_DAMAGE, this.getStrength());
             defender.takeDamage(totalAttackDamage);
+            attackLog.setDamageDone(totalAttackDamage);
 
+            // if the defender is felled in the attack,
+            if (!defender.inTheFight()) {
+                attackLog.setDefenderFelled(true);
+            }
 
             // if the attack does not hit...
         } else {
@@ -108,8 +116,6 @@ public class Character implements ICharacter {
 
         }
 
-        // Every attack on a character returns information about what happened in the attack
-        return attackLog;
     }
 
     /**
@@ -120,17 +126,21 @@ public class Character implements ICharacter {
      * @param fighterDistance the distance between two fighters in battle
      * @return the new distance after this Character moves
      */
-    public int move(int fighterDistance) {
+    public int move(int fighterDistance, IAttackLog attackLog) {
 
         // The character's position is decremented to the walking speed
-        this.setPosition(fighterDistance -= this.getWalkingSpeed());
-
-        // Clamp the position to never go below 0
-        if (this.getPosition() < 0) {
-            this.setPosition(0);
-        }
+        fighterDistance -= this.getWalkingSpeed();
 
         // return the mutated fighter distance
+        attackLog.setDistanceBetween(fighterDistance);
+
+        if (fighterDistance <= 0) {
+            // clamp distance in the attackLog
+            this.setMoveState(false);
+            attackLog.setDistanceBetween(0);
+            attackLog.setRangeClosed(true);
+        }
+
         return fighterDistance;
     }
 
@@ -195,7 +205,7 @@ public class Character implements ICharacter {
      *
      * @return the character's status in the arena.
      */
-    public Boolean getFightStatus() {
+    public Boolean inTheFight() {
         return this.inTheFight;
     }
 
@@ -214,8 +224,8 @@ public class Character implements ICharacter {
      *
      * @return Whether the character will move during their attack method execution
      */
-    public Boolean getMoveState() {
-        return moveState;
+    public boolean getMoveState() {
+        return this.moveState;
     }
 
     /**
@@ -280,17 +290,10 @@ public class Character implements ICharacter {
      *
      * @param moveState the Boolean value to set the moveState to
      */
-    public void setMoveState(Boolean moveState) {
+    public void setMoveState(boolean moveState) {
         this.moveState = moveState;
     }
 
-    /**
-     *
-     * @param position
-     */
-    public void setPosition(int position) {
-        this.position = position;
-    }
 
     /**
      * Sets the model.IWeapon implementing object that this character will use for attacks.

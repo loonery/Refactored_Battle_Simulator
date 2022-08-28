@@ -10,32 +10,102 @@ public class AttackLog implements IAttackLog {
     private ICharacter attacker;
     private IWeapon attackerWeapon;
     private ICharacter defender;
-    private IWeapon defenderWeapon;
-
 
     // Initial values of the attack prior to more information
     private boolean attackerWeaponBreak = false;
     private boolean attackHit = false;
     private double damageDone = -1.00;
 
+    private int distanceBetween;
 
-    private boolean weaponBroke = false;
+    private boolean attackerMoveState;
+    private boolean rangeClosed = false;
     private IWeapon newWeapon = null;
     private boolean defenderFelled = false;
-    private Boolean ammunitionGone = false;
+    private boolean ammunitionGone = false;
 
-    public AttackLog(ICharacter attacker, ICharacter defender) {
+    // ######################################################################################### //
+    // ###################################### Constructor ###################################### //
+    // ######################################################################################### //
+
+    public AttackLog(ICharacter attacker, ICharacter defender, int distanceBetween) {
 
         if (attacker == null || defender == null) {
             throw new IllegalArgumentException("attackLogs may not have null arguments.");
         }
 
         this.attacker = attacker;
+        this.attackerMoveState = attacker.getMoveState();
         this.attackerWeapon = attacker.getWeapon();
         this.defender = defender;
-        this.defenderWeapon = defender.getWeapon();
-
+        this.distanceBetween = distanceBetween;
     }
+
+    // ######################################################################################### //
+    // ######################################## Getters ######################################## //
+    // ######################################################################################### //
+
+    @Override
+    public boolean getAmmunitionGone() {
+        return ammunitionGone;
+    }
+
+    @Override
+    public ICharacter getAttacker() {
+        return attacker;
+    }
+
+    @Override
+    public IWeapon getAttackerWeapon() {
+        return attackerWeapon;
+    }
+
+    @Override
+    public double getDamageDone() {
+        return damageDone;
+    }
+
+    @Override
+    public ICharacter getDefender() {
+        return defender;
+    }
+
+    @Override
+    public int getDistanceBetween() {return this.distanceBetween;}
+
+    @Override
+    public IWeapon getNewWeapon() {
+        return newWeapon;
+    }
+
+    @Override
+    public boolean rangedClosed() {
+        return this.rangeClosed;
+    }
+
+    @Override
+    public boolean isAttackHit() {
+        return attackHit;
+    }
+
+    @Override
+    public boolean isAttackerWeaponBreak() {
+        return attackerWeaponBreak;
+    }
+
+    @Override
+    public boolean isDefenderFelled() {
+        return defenderFelled;
+    }
+
+    public boolean getAttackerMoveState() {
+        return attackerMoveState;
+    }
+
+
+    // ######################################################################################### //
+    // ######################################## Setters ######################################## //
+    // ######################################################################################### //
 
     public void setAmmunitionGone(Boolean ammunitionGone) {
         this.ammunitionGone = ammunitionGone;
@@ -57,12 +127,14 @@ public class AttackLog implements IAttackLog {
         this.defenderFelled = defenderFelled;
     }
 
+    public void setDistanceBetween(int distanceBetween) {this.distanceBetween = distanceBetween;}
+
     public void setNewWeapon(IWeapon newWeapon) {
         this.newWeapon = newWeapon;
     }
 
-    public void setWeaponBroke(boolean weaponBroke) {
-        this.weaponBroke = weaponBroke;
+    public void setRangeClosed(boolean rangeClosed) {
+        this.rangeClosed = rangeClosed;
     }
 
 }

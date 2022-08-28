@@ -1,4 +1,4 @@
 "Seger", 35, 8, .85, .85, "Seger is a skilled warrior. She is certain to best most opponents with her combat skill, but is not as mobile as most others. She is a good shooter."
 "Eves", 25, 10, .7, .7, "Eves is a jack of all trades - he is moderately strong and moderately quick. A tenacious all-around competitor. Average shooter and weapon handler."
 "Of Salamander Clan", 15, 25, .5, 1, "Of Salamander Clan is weak. She has learned that agility is her strong suit; there is no one faster. She is a mediocre shooter."
-"Waltz", 55, 5, .1, .4, "Waltz is a hulking beast. No one can stand his physical strength. He is, however, slower, clumsier, and is basic"
+"Waltz", 55, 5, .1, .4, "Waltz is a hulking beast. No one can stand his physical strength. He is, however, slower, and clumsier than all other characters, and is virtually incapable of using a ranged weapon."

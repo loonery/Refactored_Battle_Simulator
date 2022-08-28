@@ -8,7 +8,7 @@ import java.util.*;
 public class Thunderdome implements IThunderdome {
 
     // Keeps track of the distance between fighters
-    private int fighterDistance;
+    private int fighterDistance = 100;
 
     // The weapons remaining in the Thunderdome weapon rack
     private List<IWeapon> weaponsRack;
@@ -80,7 +80,7 @@ public class Thunderdome implements IThunderdome {
         String name = args[0];
         int meleeStrength = Integer.parseInt(args[1]);
         int durability = Integer.parseInt(args[2]);
-        int encumbrance = Integer.parseInt(args[3]);
+        double encumbrance = Double.parseDouble(args[3]);
         String description = args[4];
 
         // create the weapon with the passed arguments and add it to the game
@@ -126,19 +126,14 @@ public class Thunderdome implements IThunderdome {
      */
     public List<IAttackLog> battle() {
 
-
-        // todo: look into having this method return a list of the battle logs, which the controller
-        //  will send to the view for rendering
-
-
         ArrayList<IAttackLog> battleLog = new ArrayList<>();
-
         ICharacter contestant1 = this.currentFighters[0];
         ICharacter contestant2 = this.currentFighters[1];
 
-        // todo: think a bit more about the mechanics of characters using ranged and melee
-        //  weapons
+        // While there is no winner in the battle...
         while (noWinner()) {
+
+            boolean attackRoll = attackRoll();
 
             // if the fighters have closed ranged...
             if (distanceClosed()) {
@@ -150,28 +145,43 @@ public class Thunderdome implements IThunderdome {
 
                 // Randomly determine who will attack in the case that the two
                 // contestants are in melee combat
-                if (attackRoll()) {
-                    battleLog.add(contestant1.attack(contestant2));
+                if (attackRoll) {
+                    IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+                    contestant1.attack(contestant2, newAttackLog);
                 } else {
-                    battleLog.add(contestant2.attack(contestant1));
+                    IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+
+                    contestant2.attack(contestant1, newAttackLog);
                 }
             }
             else    // case where the fighters have not closed ranged
             {
-
                 // cases where contestant 1 lands the attack roll, and either moves,
                 // or attacks if their moveState dictates.
-                if (attackRoll() && !contestant1.getMoveState()) {
-                    battleLog.add(contestant1.attack(contestant2));
-                } else if (attackRoll() && contestant1.getMoveState()) {
-                    this.setFighterDistance(contestant1.move(this.getFighterDistance()));
+                if (attackRoll && !contestant1.getMoveState()) {
+                    IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+                    contestant1.attack(contestant2, newAttackLog);
 
-                    // cases where contestant 2 lands the attack roll, and either moves,
-                    // or attacks if their moveState dictates.
-                } else if (!attackRoll() && !contestant2.getMoveState()) {
-                    battleLog.add(contestant2.attack(contestant1));
-                } else if (!attackRoll() && contestant2.getMoveState()) {
-                    this.setFighterDistance(contestant1.move(this.getFighterDistance()));
+                } else if (attackRoll && contestant1.getMoveState()) {
+                    IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+                    this.setFighterDistance(contestant1.move(this.getFighterDistance(), newAttackLog));
+
+                // cases where contestant 2 lands the attack roll, and either moves,
+                // or attacks if their moveState dictates.
+                } else if (!attackRoll && !contestant2.getMoveState()) {
+
+                    IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+                    contestant2.attack(contestant1, newAttackLog);
+
+                } else if (!attackRoll && contestant2.getMoveState()) {
+                    IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
+                    battleLog.add(newAttackLog);
+                    this.setFighterDistance(contestant2.move(this.getFighterDistance(), newAttackLog));
                 }
             }
         }
@@ -187,7 +197,7 @@ public class Thunderdome implements IThunderdome {
      */
     private boolean attackRoll() {
         Random rand = new Random();
-        return rand.nextInt(0, 1) == 1;
+        return rand.nextInt(0, 2) == 1;
     }
 
     /**
@@ -216,7 +226,24 @@ public class Thunderdome implements IThunderdome {
      */
     private boolean noWinner() {
         // returns true
-        return currentFighters[0].getFightStatus() && currentFighters[1].getFightStatus();
+        return currentFighters[0].inTheFight() && currentFighters[1].inTheFight();
+    }
+
+    /**
+     * Arm a character with
+     *
+     * @param weaponIndex
+     * @param character
+     */
+    @Override
+    public void armCharacter(int weaponIndex, ICharacter character) {
+
+        // remove the weapon from the weaponsRack, give it to the character
+        // and tell the weapon who its user is.
+        IWeapon weapon = this.getWeaponsRack().remove(weaponIndex);
+        character.setWeapon(weapon);
+        weapon.setUser(character);
+
     }
 
     /* #################################################################################### */
@@ -224,10 +251,25 @@ public class Thunderdome implements IThunderdome {
     /* #################################################################################### */
 
     /**
-     * Places a new fighter into combat
+     * Places a new fighter into combat by removing them from the list of remaining fighters
+     * and adding them to the currentFighters array.
+     *
+     * @return the ICharacter the is placed into the arena
      */
-    public void fighterEnters() {
+    @Override
+    public ICharacter placeFighterIntoArena(int fighterIndex) {
 
+        // extract the selected fighter from the list of remaining fighters
+        ICharacter newChallenger = this.getFightersRemaining().remove(fighterIndex);
+
+        // determine empty slot for fighter and add them
+        for (int i = 0; i < getCurrentFighters().length; i++) {
+            if (currentFighters[i] == null) {
+                currentFighters[i] = newChallenger;
+                return newChallenger;
+            }
+        }
+        return newChallenger;
     }
 
     /**
@@ -235,14 +277,36 @@ public class Thunderdome implements IThunderdome {
      */
     @Override
     public void removeDefeatedFighter() {
-        // todo:  guard input
-        if (!currentFighters[0].getFightStatus()) {
-            this.remainingContestants.remove(0);
+        if (!currentFighters[0].inTheFight()) {
+            this.currentFighters[0] = null;
         }
-        if (!currentFighters[1].getFightStatus()) {
-            this.remainingContestants.remove(1);
+        if (!currentFighters[1].inTheFight()) {
+            this.currentFighters[1] = null;
         }
     }
+
+    public ICharacter getVictoriousFighter() {
+
+        if (currentFighters[0] != null && currentFighters[0].inTheFight()) {
+            return this.currentFighters[0];
+        } else if (currentFighters[1] != null && currentFighters[1].inTheFight()) {
+            return this.currentFighters[1];
+        }
+
+        return null;
+    }
+
+    public ICharacter getDefeatedFighter() {
+
+        if (currentFighters[0] != null && !currentFighters[0].inTheFight()) {
+            return this.currentFighters[0];
+        } else if (currentFighters[1] != null && !currentFighters[1].inTheFight()) {
+            return this.currentFighters[1];
+        }
+
+        return null;
+    }
+
 
     /**
      * Removes a weapon from the Thunderdome when it becomes unavailable.
@@ -251,7 +315,7 @@ public class Thunderdome implements IThunderdome {
     public void removeWeapon(int indexOf) {
 
         //todo: null guard input
-        this.getWeaponsRack().remove(indexOf);
+
 
     }
 
@@ -277,7 +341,11 @@ public class Thunderdome implements IThunderdome {
      */
     @Override
     public Boolean fightersRemaining() {
-        return (this.remainingContestants.size() == 0);
+        return (this.remainingContestants.size() > 0);
+    }
+
+    public ICharacter[] getCurrentFighters(){
+        return this.currentFighters;
     }
 
     /**
@@ -286,11 +354,13 @@ public class Thunderdome implements IThunderdome {
      * @return the weapons remaining in the thunderdome as a List object
      */
     public List<IWeapon> getWeaponsRack() {
-        return Collections.unmodifiableList(this.weaponsRack);
+        return this.weaponsRack;
     }
 
-
-
+    @Override
+    public List<ICharacter> getFightersRemaining() {
+        return this.remainingContestants;
+    }
 
 
 }

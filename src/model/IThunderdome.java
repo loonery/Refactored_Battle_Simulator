@@ -10,7 +10,9 @@ public interface IThunderdome {
 
     void addRangedWeapon(String[] args);
 
-    void removeFighter(int indexOf);
+    void armCharacter(int weaponIndex, ICharacter character);
+
+    ICharacter placeFighterIntoArena(int fighterIndex);
 
     void removeDefeatedFighter();
 
@@ -26,8 +28,8 @@ public interface IThunderdome {
 
     List<ICharacter> getFightersRemaining();
 
-    void removeWeapon(String weaponName);
+    ICharacter getVictoriousFighter();
 
-    void removeFighter(String weaponName);
+    ICharacter getDefeatedFighter();
 
 }

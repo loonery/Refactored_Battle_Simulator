@@ -97,27 +97,30 @@ public class RangedWeapon extends Weapon {
         this.applyWear();
         this.useAmmunition();
 
-        // if the weapon is broken or out of ammunition...
+        // if the weapon is broken and out of ammunition...
         if (this.isBroken() && this.getAmmunition() == 0) {
 
-            attackLog.setWeaponBroke(true);
+            attackLog.setAttackerWeaponBreak(true);
 
 
             // set the user's weapon to the melee version of this ranged weapon.
             // The rationale of this decision is that a weapon that breaks
             // from ranged-use is likely not entirely ineffective as a melee
             // weapon
+            attackLog.setNewWeapon(this.getMeleeVersion());
+            this.getMeleeVersion().setUser(this.getUser());
             this.getUser().setWeapon(this.getMeleeVersion());
-            this.setUser(null);
         }
         else if (this.getAmmunition() == 0)
         {
             attackLog.setAmmunitionGone(true);
 
-            // set the user's weapon to the melee version of this ranged weapon.
-            // when ammunition is exhausted
+            // set the user's weapon to the melee version of this ranged weapon,
+            // and set the melee weapon's user to this weapon's user.
+            // when ammunition is exhausted.
+            attackLog.setNewWeapon(this.getMeleeVersion());
+            this.getMeleeVersion().setUser(this.getUser());
             this.getUser().setWeapon(this.getMeleeVersion());
-            this.setUser(null);
         }
     }
 
