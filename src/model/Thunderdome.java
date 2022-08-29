@@ -3,7 +3,7 @@ package model;
 import java.util.*;
 
 /**
- * The Thunderdome is the gameInstance
+ * The Thunderdome is the gameInstance.
  */
 public class Thunderdome implements IThunderdome {
 

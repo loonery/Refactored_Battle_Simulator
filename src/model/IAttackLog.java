@@ -37,7 +37,7 @@ public interface IAttackLog {
     // ######################################## Setters ######################################## //
     // ######################################################################################### //
 
-    void setAmmunitionGone(Boolean ammunitionGone);
+    void setAmmunitionGone(boolean ammunitionGone);
 
     void setAttackHit(boolean attackHit);
 

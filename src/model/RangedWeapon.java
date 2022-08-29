@@ -7,13 +7,12 @@ import java.util.Random;
  */
 public class RangedWeapon extends Weapon {
 
-    private final int rangedStrength;         // the analog to meleeStrength in melee weapons
-    private final double accuracy;            // the ease of ability to hit an attack with this weapon
-    private final IWeapon meleeVersion;       // every ranged weapon may be used as a melee weapon
-    private final int LOWER_BOUND_RANGED_DAMAGE = 1;
+    private final int rangedStrength;                   // the analog to meleeStrength in melee weapons
+    private final double accuracy;                      // the ease of ability to hit an attack with this weapon
+    private final IWeapon meleeVersion;                 // every ranged weapon may be used as a melee weapon
+    private final int LOWER_BOUND_RANGED_DAMAGE = 1;    // the minimum damage that can be
 
-    //todo: implement melee damage functions for the ranged weapon class
-    private int ammunition;             // the ammunition that this weapon holds
+    private int ammunition;                             // the ammunition that this weapon holds
 
     /* ############################################################################### */
     /* ############################ Constructor ############################ */
@@ -55,7 +54,12 @@ public class RangedWeapon extends Weapon {
     /* ############################ State Getter Methods ############################ */
     /* ############################################################################### */
 
-    public Integer getAmmunition() {
+    /**
+     * Get the ammunition stored in this weapon.
+     *
+     * @return the integer value representing the ammunition left in this weapon
+     */
+    private int getAmmunition() {
         return this.ammunition;
     }
 

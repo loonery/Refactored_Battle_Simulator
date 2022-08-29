@@ -2,6 +2,9 @@ package model;
 
 import java.util.List;
 
+/**
+ * The interface that all IThunderdome implementing classes must fulfill.
+ */
 public interface IThunderdome {
 
     /* #################################################################################### */

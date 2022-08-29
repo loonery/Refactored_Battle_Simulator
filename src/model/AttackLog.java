@@ -28,6 +28,13 @@ public class AttackLog implements IAttackLog {
     // ###################################### Constructor ###################################### //
     // ######################################################################################### //
 
+    /**
+     * Constructor for an attackLog. AttackLogs store information about attacks from 1 character to another.
+     *
+     * @param attacker the attacker for the attack being recorded in this log
+     * @param defender the defender against the attack being recorded in this log
+     * @param distanceBetween the distance between the two fighters when the attack took place
+     */
     public AttackLog(ICharacter attacker, ICharacter defender, int distanceBetween) {
 
         if (attacker == null || defender == null) {
@@ -71,7 +78,9 @@ public class AttackLog implements IAttackLog {
     }
 
     @Override
-    public int getDistanceBetween() {return this.distanceBetween;}
+    public int getDistanceBetween() {
+        return this.distanceBetween;
+    }
 
     @Override
     public IWeapon getNewWeapon() {
@@ -107,7 +116,7 @@ public class AttackLog implements IAttackLog {
     // ######################################## Setters ######################################## //
     // ######################################################################################### //
 
-    public void setAmmunitionGone(Boolean ammunitionGone) {
+    public void setAmmunitionGone(boolean ammunitionGone) {
         this.ammunitionGone = ammunitionGone;
     }
 
