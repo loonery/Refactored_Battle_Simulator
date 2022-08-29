@@ -5,27 +5,45 @@ package model;
  */
 public interface IWeapon {
 
+    /* ############################################################################### */
+    /* ############################ Getter Methods ############################ */
+    /* ############################################################################### */
 
-
-    ICharacter getUser();
-
-    String getName();
 
     String getDescription();
 
     int getDurability();
 
-    double rollWeaponDamage();
+    double getEncumbrance();
 
-    double rollHitChance();
+    int getMeleeStrength();
+
+    String getName();
+
+    ICharacter getUser();
 
     boolean isBroken();
 
-    void handleMiss(IAttackLog attackLog);
+
+    /* ############################################################################### */
+    /* ############################ Combat Methods ############################ */
+    /* ############################################################################### */
+
+    void applyWear();
+
+    void handleHandToHand();
 
     void handleHit(IAttackLog attackLog);
 
-    void applyWear();
+    void handleMiss(IAttackLog attackLog);
+
+    double rollHitChance();
+
+    double rollWeaponDamage();
+
+    /* ############################################################################### */
+    /* ############################ Setter Methods ############################ */
+    /* ############################################################################### */
 
     void setUser(ICharacter user);
 

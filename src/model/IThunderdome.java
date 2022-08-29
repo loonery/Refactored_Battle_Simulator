@@ -4,32 +4,48 @@ import java.util.List;
 
 public interface IThunderdome {
 
+    /* #################################################################################### */
+    /* ############################ Model Instantiation Methods ############################ */
+    /* #################################################################################### */
+
     void addCharacter(String[] args);
 
     void addMeleeWeapon(String[] args);
 
     void addRangedWeapon(String[] args);
 
+    /* #################################################################################### */
+    /* ############################ Combat Supporting Methods ############################ */
+    /* #################################################################################### */
+
     void armCharacter(int weaponIndex, ICharacter character);
+
+    List<IAttackLog> battle();
+
+    int getFighterDistance();
+
+    /* #################################################################################### */
+    /* ############################ Model State Change Methods ############################ */
+    /* #################################################################################### */
 
     ICharacter placeFighterIntoArena(int fighterIndex);
 
     void removeDefeatedFighter();
 
-    void removeWeapon(int indexOf);
-
-    Boolean fightersRemaining();
-
-    public List<IAttackLog> battle();
-
     void setFighterDistance(int fighterDistance);
 
-    List<IWeapon> getWeaponsRack();
+    /* #################################################################################### */
+    /* ############################ Model State Getter Methods ############################ */
+    /* #################################################################################### */
+
+    boolean fightersRemaining();
+
+    ICharacter[] getCurrentFighters();
 
     List<ICharacter> getFightersRemaining();
 
     ICharacter getVictoriousFighter();
 
-    ICharacter getDefeatedFighter();
+    List<IWeapon> getWeaponsRack();
 
 }

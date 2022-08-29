@@ -1,5 +1,5 @@
-package controller;
-
+import controller.IThunderdomeController;
+import controller.ThunderdomeController;
 import model.IThunderdome;
 import model.Thunderdome;
 import view.IThunderdomeView;

@@ -40,10 +40,10 @@ public class ThunderdomeTextView implements IThunderdomeView {
 
         int i = 0;
         for (ICharacter character : fighters) {
-            System.out.println(++i + " - " + character.getName() + ": " + character.getBio());
+            System.out.println(++i + " " + character.getName() + ": " + character.getBio());
         }
 
-        System.out.println("Select a character by inputting their respective integer as it appears on the screen: ");
+        System.out.println("\nSelect a character by inputting their respective integer as it appears on the screen: ");
     }
 
     public void displayWeaponSelectionScreen(List<IWeapon> weapons, ICharacter characterToArm) {
@@ -79,23 +79,17 @@ public class ThunderdomeTextView implements IThunderdomeView {
 
     @Override
     public void displayHitRanged() {
-
         System.out.println(Images.RANGED_HIT);
-
     }
 
     @Override
     public void displayMovement() {
-
         System.out.println(Images.MOVE);
-
     }
 
     @Override
     public void displayMeleeCombat() {
-
         System.out.println(Images.BEGIN_BATTLE);
-
     }
 
     @Override
@@ -111,11 +105,11 @@ public class ThunderdomeTextView implements IThunderdomeView {
     @Override
     public void renderAttackLog(IAttackLog attackLog) {
 
-        StringBuilder renderedAttackLog = new StringBuilder("\n\n");
+        System.out.println("===============================");
 
         // Determine the action that was performed in the attack:
         //  A) the character moved, and did not attack
-
+        StringBuilder renderedAttackLog = new StringBuilder("\n\n");
         if (attackLog.getAttackerMoveState()) {
 
             // render the character moving in text form
@@ -150,9 +144,10 @@ public class ThunderdomeTextView implements IThunderdomeView {
                         .append(" with their ").append(attackLog.getAttackerWeapon().getName()).append(" and");
 
                 // and if their attack hit...
+
                 if (attackLog.isAttackHit()) {
-                    renderedAttackLog.append(" hit for ").append(attackLog.getDamageDone()).append(" points of damage"
-                            + ".");
+                    renderedAttackLog.append(" hit for ").append(String.format("%.02f", attackLog.getDamageDone())).append(
+                            " points of damage.");
                     this.displayHitRanged();
 
                 // otherwise if their attack missed...
@@ -185,12 +180,13 @@ public class ThunderdomeTextView implements IThunderdomeView {
             } else {
 
                 renderedAttackLog.append(attackLog.getAttacker().getName()).append(" swung at ").append(attackLog.getDefender().getName())
-                        .append(" and ");
+                        .append(" with their ").append(attackLog.getAttackerWeapon().getName()).append(" and ");
 
                 // if their attack hit...
                 if (attackLog.isAttackHit()) {
 
-                    renderedAttackLog.append(" hit for ").append(attackLog.getDamageDone());
+                    renderedAttackLog.append("hit for ").append(String.format("%.02f", attackLog.getDamageDone())).append(
+                            " points of damage.");
                     this.displayHitMelee();
 
                     // if the attacker's weapon broke during the attack...
@@ -219,7 +215,11 @@ public class ThunderdomeTextView implements IThunderdomeView {
         }
 
         System.out.println(renderedAttackLog);
+    }
 
+    @Override
+    public void displayBeginBattle() {
+        System.out.println("=============================== Begin Battle ===============================");
     }
 
     /**

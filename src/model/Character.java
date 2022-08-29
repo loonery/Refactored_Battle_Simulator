@@ -45,12 +45,14 @@ public class Character implements ICharacter {
             throw new IllegalArgumentException("name or biography of character may not be null");
         }
 
-        // bound integer inputs
-        if (strength <= 0 || walkingSpeed <= 0 || combatProwess < 0 || shootingAccuracyModifier < 0) {
-            throw new IllegalArgumentException("Cannot initialize combat attributes at 0");
+        // bound numerical inputs
+        if (strength <= 0 || strength > 1.00 ||
+            walkingSpeed <= 0 ||
+            combatProwess < 0 || combatProwess > 1.00
+            || shootingAccuracyModifier < 0 || shootingAccuracyModifier > 1.00) {
+            throw new IllegalArgumentException("Illegal argument to Character constructor - invalid ranges on" +
+                    " numeric parameters.");
         }
-
-        // todo: upper bound these ranges too
 
         this.name = name;
         this.strength = strength;
@@ -61,7 +63,6 @@ public class Character implements ICharacter {
         // certain weapon types
         this.combatProwess = combatProwess;
         this.shootingAccuracyModifier = shootingAccuracyModifier;
-
     }
 
     /* #################################################################################### */
@@ -113,9 +114,7 @@ public class Character implements ICharacter {
             // When an attack misses, the character's weapon will
             // handle the case
             this.getWeapon().handleMiss(attackLog);
-
         }
-
     }
 
     /**
@@ -128,15 +127,15 @@ public class Character implements ICharacter {
      */
     public int move(int fighterDistance, IAttackLog attackLog) {
 
-        // The character's position is decremented to the walking speed
+        // The character's position is decremented by their walking speed
         fighterDistance -= this.getWalkingSpeed();
 
         // return the mutated fighter distance
         attackLog.setDistanceBetween(fighterDistance);
 
+        // if the fighters have closed range...
         if (fighterDistance <= 0) {
             // clamp distance in the attackLog
-            this.setMoveState(false);
             attackLog.setDistanceBetween(0);
             attackLog.setRangeClosed(true);
         }
@@ -188,34 +187,6 @@ public class Character implements ICharacter {
     @Override
     public double getCombatProwess() {
         return this.combatProwess;
-    }
-
-    /**
-     * Return the IWeapon implementing object that this character has equipped in battle.
-     *
-     * @return The IWeapon this Character is carrying
-     */
-    public IWeapon getEquippedWeapon() {
-        return equippedWeapon;
-    }
-
-    /**
-     * Returns this character's status in the arena. Returns true if this character has hit points left. Otherwise,
-     * returns false.
-     *
-     * @return the character's status in the arena.
-     */
-    public Boolean inTheFight() {
-        return this.inTheFight;
-    }
-
-    /**
-     * Gets this character's hitPoint value.
-     *
-     * @return the hitPoints that this character has remaining
-     */
-    public int getHitPoints() {
-        return this.hitPoints;
     }
 
     /**
@@ -279,6 +250,15 @@ public class Character implements ICharacter {
         return this.equippedWeapon;
     }
 
+    /**
+     * Returns this character's status in the arena. Returns true if this character has hit points left. Otherwise,
+     * returns false.
+     *
+     * @return the character's status in the arena.
+     */
+    public Boolean inTheFight() {
+        return this.inTheFight;
+    }
 
     /* ######################################################################## */
     /* ############################ Setter Methods ############################ */
@@ -294,7 +274,6 @@ public class Character implements ICharacter {
         this.moveState = moveState;
     }
 
-
     /**
      * Sets the model.IWeapon implementing object that this character will use for attacks.
      *
@@ -302,15 +281,13 @@ public class Character implements ICharacter {
      */
     public void setWeapon(IWeapon weapon) throws IllegalArgumentException {
 
+        // null guard the setting a character's weapon
         if (weapon == null) {
             throw new IllegalArgumentException("May not assign a null weapon");
         }
 
+        // have this character equip the weapon
         this.equippedWeapon = weapon;
     }
-
-
-
-
 
 }

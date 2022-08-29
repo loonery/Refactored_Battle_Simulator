@@ -4,10 +4,13 @@ import model.IAttackLog;
 import model.ICharacter;
 import model.IWeapon;
 
-import java.util.HashMap;
 import java.util.List;
 
 public interface IThunderdomeView {
+
+    void displayBareHands();
+
+    void displayBeginBattle();
 
     void displayFighterSelectionScreen(List<ICharacter> fighters);
 
@@ -22,8 +25,6 @@ public interface IThunderdomeView {
     void displayMissedRanged();
 
     void displayMovement();
-
-    void displayBareHands();
 
     void displayWeaponBreak(IAttackLog attackLog, StringBuilder renderedAttackLog);
 

@@ -1,37 +1,47 @@
 package model;
 
+/**
+ * The ICharacter interface expresses the contract for all ICharacter implementing classes.
+ */
 public interface ICharacter {
 
-    /**
-     *
-     * @param defender
-     * @return
-     * @throws IllegalArgumentException
-     */
-    public void attack(ICharacter defender, IAttackLog attackLog) throws IllegalArgumentException;
+    /* #################################################################################### */
+    /* ############################ Combat-controlling methods ############################ */
+    /* #################################################################################### */
 
-    /* ############################ Getter Methods ############################ */
-    public double getShootingAccuracyModifier();
-
-    public String getBio();
-
-    public double getCombatProwess();
-
-    public Boolean inTheFight();
-
-    public boolean getMoveState();
-
-    public String getName();
-
-    int getStrength();
-
-    public IWeapon getWeapon();
+    void attack(ICharacter defender, IAttackLog attackLog) throws IllegalArgumentException;
 
     int move(int fighterDistance, IAttackLog attackLog);
 
+    void takeDamage(double damage) throws IllegalArgumentException;
+
+    /* ######################################################################## */
+    /* ############################ Getter Methods ############################ */
+    /* ######################################################################## */
+
+    String getBio();
+
+    double getCombatProwess();
+
+    boolean getMoveState();
+
+    String getName();
+
+    double getShootingAccuracyModifier();
+
+    int getStrength();
+
+    int getWalkingSpeed();
+
+    IWeapon getWeapon();
+
+    Boolean inTheFight();
+
+    /* ######################################################################## */
+    /* ############################ Setter Methods ############################ */
+    /* ######################################################################## */
+
     void setMoveState(boolean moveState);
 
-    public void setWeapon(IWeapon weapon);
-
-    public void takeDamage(double damage) throws IllegalArgumentException;
+    void setWeapon(IWeapon weapon);
 }

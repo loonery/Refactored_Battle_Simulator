@@ -22,6 +22,8 @@ public class ThunderdomeController implements IThunderdomeController {
     private IThunderdome thunderdomeInstance;           // This controller's instance of the game
     private IThunderdomeView thunderdomeView;       // This controller's view of the game
 
+    private final static int MILLISECONDS_BETWEEN_ATTACK_RENDERS = 3000;
+
     /* ##################################################################### */
     /* ############################ Constructor ############################ */
     /* ##################################################################### */
@@ -73,8 +75,9 @@ public class ThunderdomeController implements IThunderdomeController {
             ArrayList<IAttackLog> battleLog = (ArrayList<IAttackLog>) this.getModel().battle();
 
             // render each attack that takes place during the battle
+            this.getView().displayBeginBattle();
             for (IAttackLog attackLog : battleLog) {
-                Thread.sleep(2000);
+                Thread.sleep(MILLISECONDS_BETWEEN_ATTACK_RENDERS);
                 this.getView().renderAttackLog(attackLog);
             }
 
@@ -88,10 +91,13 @@ public class ThunderdomeController implements IThunderdomeController {
         this.getView().pronounceVictor(this.getModel().getVictoriousFighter());
     }
 
+    /**
+     *
+     */
     private void readyFighter() {
 
         // todo: make some distinction between selecting the first challenger, and
-        //  asking the user to
+        //  asking the user to replace a defeated challenger
 
         // display the characters available for selection
         this.getView().displayFighterSelectionScreen(this.getModel().getFightersRemaining());
@@ -104,19 +110,15 @@ public class ThunderdomeController implements IThunderdomeController {
     }
 
     /**
+     * Regulates the selection of weapons for ICharacters within the Thunderdome program.
      *
-     * @param user
+     * @param user the ICharacter for which this program's user is selecting a weapon
      */
     private void weaponSelection(ICharacter user) {
-
         // Select the weapon and give it to the selected character
         Scanner scanner = new Scanner(System.in);
         int selectedWeapon = scanner.nextInt() - 1;
         this.getModel().armCharacter(selectedWeapon, user);
-
-
-        // todo: need to apply the weapon to the correct person.
-
     }
 
     /**
@@ -162,12 +164,17 @@ public class ThunderdomeController implements IThunderdomeController {
 
     /**
      * Loads in game content files from the GAME_CONTENT_PATH file path and passes data from each file
-     * to its associated Constructor in order to populate the model.
+     * to its associated Constructor (via the model) in order to populate the model.
      *
      * @param gameContentFolder the game content folder
      * @throws MissingResourceException when a necessary game content file is missing
      */
-    public void loadModel(Path gameContentFolder) throws MissingResourceException {
+    public void loadModel(Path gameContentFolder) throws RuntimeException, IOException {
+
+        // null guard the file object
+        if (gameContentFolder == null) {
+            throw new IllegalArgumentException("No game content file may be null");
+        }
 
         // get the directory's contents as a directory stream
         try (DirectoryStream<Path> gameContent = Files.newDirectoryStream(gameContentFolder)) {
@@ -176,145 +183,37 @@ public class ThunderdomeController implements IThunderdomeController {
 
             // load the contents of each file which map to loading information into to different portions of the model.
             for (Path gameFile : gameContent) {
-                switch (String.valueOf(gameFile.getFileName())) {
-                    case "Characters.txt" -> loadCharacters(gameFile.toFile());
-                    case "MeleeWeapons.txt" -> loadMeleeWeapons(gameFile.toFile());
-                    case "RangedWeapons.txt" -> loadRangedWeapons(gameFile.toFile());
-                    default -> {
-                        throw new FileNotFoundException("Some critical game content file is missing");
+
+                Scanner scanner = new Scanner(gameFile.toFile());
+
+                // read the file and tokenize each line of arguments
+                while (scanner.hasNextLine()) {
+
+                    // iterate over all lines and split the arguments to the Character's constructor
+                    // on all commas except for those in strings
+                    String line = scanner.nextLine();
+                    String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+
+                    // Iterate over and clean the tokenized input...
+                    String[] argumentsArray = new String[tokenizedLine.length];
+                    for (int i = 0; i < argumentsArray.length; i++) {
+                        String argument = tokenizedLine[i].strip();
+                        argument = argument.replaceAll("\"", "");
+                        argumentsArray[i] = argument;
+                    }
+
+                    // call the appropriate model-method dependent upon which gameFile we are trying
+                    // to load.
+                    switch (String.valueOf(gameFile.getFileName())) {
+                        case "Characters.txt" -> this.getModel().addCharacter(argumentsArray);
+                        case "MeleeWeapons.txt" -> this.getModel().addMeleeWeapon(argumentsArray);
+                        case "RangedWeapons.txt" -> this.getModel().addRangedWeapon(argumentsArray);
+                        default -> throw new FileNotFoundException("Some critical game content file is missing");
                     }
                 }
             }
-        } catch (MissingResourceException | IOException e) {
+        } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /**
-     * Passes arguments from the argued filePath to the model.Character constructor to load
-     * Character objects into the Thunderdome.
-     *
-     * @param charactersFile the File object that describes the arguments to be passed to the model.Character
-     *                       constructor.
-     * @throws FileNotFoundException when the charactersFile argument cannot be found
-     */
-    private void loadCharacters(File charactersFile) throws FileNotFoundException {
-
-        // null guard the file object
-        if (charactersFile == null) {
-            throw new IllegalArgumentException("No game content file may be null");
-        }
-
-        Scanner scanner = new Scanner(charactersFile);
-
-        // read the file and tokenize each line of arguments
-        while (scanner.hasNextLine()) {
-
-            // iterate over all lines and split the arguments to the Character's constructor
-            // on all commas except for those in strings
-            String line = scanner.nextLine();
-            String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-
-            // Iterate over and clean the tokenized input...
-            String[] argumentsArray = new String[tokenizedLine.length];
-            for (int i = 0; i < argumentsArray.length; i++)  {
-
-                String argument = tokenizedLine[i].strip();
-                argument = argument.replaceAll("\"", "");
-                argumentsArray[i] = argument;
-
-            }
-
-            // pass the Character constructor arguments in each line of
-            // the CharactersFile.
-            this.getModel().addCharacter(argumentsArray);
-
-        }
-    }
-
-    /**
-     * Passes arguments from the argued filePath to the model.Weapon constructor to load
-     * Weapon objects into the Thunderdome.
-     *
-     * @param meleeWeaponsFile the File object that describes the arguments to be passed to the model.Weapon
-     *                         constructor.
-     * @throws FileNotFoundException when the meleeWeaponsFile argument cannot be found
-     */
-    private void loadMeleeWeapons(File meleeWeaponsFile) throws FileNotFoundException {
-
-        // null guard the meleeWeaponsFile
-        if (meleeWeaponsFile == null) {
-            throw new IllegalArgumentException("No game content file may be null");
-        }
-
-        Scanner scanner = new Scanner(meleeWeaponsFile);
-
-        // read the file and tokenize each line of arguments
-        while (scanner.hasNextLine()) {
-
-            // iterate over all lines and split the arguments to the Weapon's constructor
-            // on all commas except for those in strings
-            String line = scanner.nextLine();
-            String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-
-            // Iterate over and clean the tokenized input...
-            String[] argumentsArray = new String[tokenizedLine.length];
-            for (int i = 0; i < argumentsArray.length; i++)  {
-
-                String argument = tokenizedLine[i].strip();
-                argument = argument.replaceAll("\"", "");
-                argumentsArray[i] = argument;
-
-
-            }
-
-            // add the character argued from a line in the charactersFile
-            this.getModel().addMeleeWeapon(argumentsArray);
-
-        }
-
-    }
-
-    /**
-     * Passes arguments from the argued filePath to the model.RangedWeapon constructor to load
-     * Weapon objects into the Thunderdome.
-     *
-     * @param rangedWeaponsFile the File object that describes the arguments to be passed to the model.RangedWeapon
-     *                          constructor.
-     * @throws FileNotFoundException when the meleeWeaponsFile argument cannot be found
-     */
-    private void loadRangedWeapons(File rangedWeaponsFile) throws FileNotFoundException {
-
-        // null guard the rangedWeaponsFile
-        if (rangedWeaponsFile == null) {
-            throw new IllegalArgumentException("No game content file may be null");
-        }
-
-        Scanner scanner = new Scanner(rangedWeaponsFile);
-
-        // read the file and tokenize each line of arguments
-        while (scanner.hasNextLine()) {
-
-            // iterate over all lines and split the arguments to the Weapon's constructor
-            // on all commas except for those in strings
-            String line = scanner.nextLine();
-            String[] tokenizedLine = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-
-            // Iterate over and clean the tokenized input...
-            String[] argumentsArray = new String[tokenizedLine.length];
-            for (int i = 0; i < argumentsArray.length; i++)  {
-                String argument = tokenizedLine[i].strip();
-                argument = argument.replaceAll("\"", "");
-                argumentsArray[i] = argument;
-            }
-
-
-            // add the character argued from a line in the charactersFile
-            this.getModel().addRangedWeapon(argumentsArray);
-
-        }
-    }
-
-
-
 }

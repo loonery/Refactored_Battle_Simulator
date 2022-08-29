@@ -5,6 +5,7 @@ import view.IThunderdomeView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Path;
 
 public interface IThunderdomeController {
@@ -13,7 +14,7 @@ public interface IThunderdomeController {
 
     IThunderdomeView getView();
 
-    void loadModel(Path gameContents) throws FileNotFoundException;
+    void loadModel(Path gameContents) throws IOException;
 
     void run() throws InterruptedException;
     

@@ -83,6 +83,19 @@ public class RangedWeapon extends Weapon {
     /* ############################################################################### */
 
     /**
+     * Handles the behavior of this rangedWeapon once range has closed between two combatants.
+     */
+    @Override
+    public void handleHandToHand() {
+        // set the user's weapon to the melee version of this ranged weapon,
+        // and set the melee weapon's user to this weapon's user.
+        // when ammunition is exhausted.
+        this.getMeleeVersion().setUser(this.getUser());
+        this.getUser().setWeapon(this.getMeleeVersion());
+        this.getUser().setMoveState(false);
+    }
+
+    /**
      * Controls behavior for a RangedWeapon hitting an attack, and stores the information about the successful
      * attack in the IAttackLog object that is passed in.
      *
@@ -97,28 +110,30 @@ public class RangedWeapon extends Weapon {
         this.applyWear();
         this.useAmmunition();
 
-        // if the weapon is broken and out of ammunition...
-        if (this.isBroken() && this.getAmmunition() == 0) {
+        // if the weapon is broken...
+        if (this.isBroken()) {
 
+            // record the event in the attackLog
             attackLog.setAttackerWeaponBreak(true);
-
+            attackLog.setNewWeapon(this.getMeleeVersion());
 
             // set the user's weapon to the melee version of this ranged weapon.
             // The rationale of this decision is that a weapon that breaks
             // from ranged-use is likely not entirely ineffective as a melee
             // weapon
-            attackLog.setNewWeapon(this.getMeleeVersion());
             this.getMeleeVersion().setUser(this.getUser());
             this.getUser().setWeapon(this.getMeleeVersion());
         }
         else if (this.getAmmunition() == 0)
         {
+            // record the event in the attackLog
             attackLog.setAmmunitionGone(true);
 
-            // set the user's weapon to the melee version of this ranged weapon,
-            // and set the melee weapon's user to this weapon's user.
-            // when ammunition is exhausted.
+            /// set the user's weapon to the melee version of this ranged weapon,
             attackLog.setNewWeapon(this.getMeleeVersion());
+
+            // set the user of the melee version to be this weapon's current user.
+            // set this user's weapon to be the melee version
             this.getMeleeVersion().setUser(this.getUser());
             this.getUser().setWeapon(this.getMeleeVersion());
         }

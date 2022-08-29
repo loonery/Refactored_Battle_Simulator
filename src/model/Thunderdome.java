@@ -8,7 +8,7 @@ import java.util.*;
 public class Thunderdome implements IThunderdome {
 
     // Keeps track of the distance between fighters
-    private int fighterDistance = 100;
+    private int fighterDistance = 50;
 
     // The weapons remaining in the Thunderdome weapon rack
     private List<IWeapon> weaponsRack;
@@ -21,11 +21,8 @@ public class Thunderdome implements IThunderdome {
     // defeated with some other contestant
     private ICharacter[] currentFighters;
 
-    // Linked-List that holds a chronological list of
-    private List<IAttackLog> simulationRecord;
-
     /* #################################################################################### */
-    /* ############################ Constructor ############################ */
+    /* #################################### Constructor ################################### */
     /* #################################################################################### */
 
     /**
@@ -35,7 +32,6 @@ public class Thunderdome implements IThunderdome {
         currentFighters = new ICharacter[2];
         this.weaponsRack = new ArrayList<>();
         this.remainingContestants = new ArrayList<>();
-        this.simulationRecord = new ArrayList<IAttackLog>();
     }
 
     /* #################################################################################### */
@@ -50,7 +46,16 @@ public class Thunderdome implements IThunderdome {
      */
     public void addCharacter(String[] args) {
 
-        // todo: guard input for each of these to ensure args is appropriately sized
+        // args may not be null
+        if (args == null) {
+            throw new IllegalArgumentException("args array may not be null");
+        }
+
+        // guard args length
+        if (args.length != 6) {
+            throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
+                    "arguments");
+        }
 
         // Each argument from the argument array is parsed into the necessary data type
         String name = args[0];
@@ -74,7 +79,16 @@ public class Thunderdome implements IThunderdome {
      */
     public void addMeleeWeapon(String[] args) {
 
-        // todo: guard input for each of these to ensure args is appropriately sized
+        // args may not be null
+        if (args == null) {
+            throw new IllegalArgumentException("args array may not be null");
+        }
+
+        // guard args length
+        if (args.length != 5) {
+            throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
+                    "arguments");
+        }
 
         // Each argument from the argument array is parsed into the necessary data type
         String name = args[0];
@@ -97,6 +111,17 @@ public class Thunderdome implements IThunderdome {
      */
     public void addRangedWeapon(String[] args) {
 
+        // args may not be null
+        if (args == null) {
+            throw new IllegalArgumentException("args array may not be null");
+        }
+
+        // guard args length
+        if (args.length != 8) {
+            throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
+                    "arguments");
+        }
+
         // todo: guard input for each of these to ensure args is appropriately sized
 
         // Each argument from the argument array is parsed into the necessary data type
@@ -116,16 +141,44 @@ public class Thunderdome implements IThunderdome {
 
     }
 
-
     /* #################################################################################### */
     /* ############################ Combat Supporting Methods ############################ */
     /* #################################################################################### */
+
+    /**
+     * Arm a character with a specific weapon and remove that weapon from the Weapons rack.
+     *
+     * @param weaponIndex the index of the weapon in the weaponsRack
+     * @param character the ICharacter instance to which the selected IWeapon object will be assigned
+     */
+    @Override
+    public void armCharacter(int weaponIndex, ICharacter character) {
+
+        // remove the weapon from the weaponsRack, give it to the character
+        // and tell the weapon who its user is.
+        IWeapon weapon = this.getWeaponsRack().remove(weaponIndex);
+        character.setWeapon(weapon);
+        weapon.setUser(character);
+
+    }
+
+    /**
+     * Rolls a 50/50 die to determine which of any two contestants will have their
+     * attack() method called for a given roll.
+     *
+     * @return boolean expressing which ICharacter will attack first
+     */
+    private boolean attackRoll() {
+        Random rand = new Random();
+        return rand.nextInt(0, 101) < 51;
+    }
 
     /**
      * Have 2 fighters battle against one another
      */
     public List<IAttackLog> battle() {
 
+        // retain a log of all attacks that happen during a battle between two characters
         ArrayList<IAttackLog> battleLog = new ArrayList<>();
         ICharacter contestant1 = this.currentFighters[0];
         ICharacter contestant2 = this.currentFighters[1];
@@ -133,15 +186,16 @@ public class Thunderdome implements IThunderdome {
         // While there is no winner in the battle...
         while (noWinner()) {
 
+            // roll a "die" to see who will attack for a given roll
             boolean attackRoll = attackRoll();
 
             // if the fighters have closed ranged...
             if (distanceClosed()) {
 
-                // neither contestant tries to move position once they
-                // have closed range
-                contestant1.setMoveState(false);
-                contestant2.setMoveState(false);
+                // when the distance is closed, have weapons behave as they should
+                // during hand-to-hand content
+                contestant1.getWeapon().handleHandToHand();
+                contestant2.getWeapon().handleHandToHand();
 
                 // Randomly determine who will attack in the case that the two
                 // contestants are in melee combat
@@ -150,13 +204,13 @@ public class Thunderdome implements IThunderdome {
                     battleLog.add(newAttackLog);
                     contestant1.attack(contestant2, newAttackLog);
                 } else {
-                    IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
+                    IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
                     battleLog.add(newAttackLog);
-
                     contestant2.attack(contestant1, newAttackLog);
                 }
             }
-            else    // case where the fighters have not closed ranged
+            // case where the fighters have NOT closed ranged
+            else
             {
                 // cases where contestant 1 lands the attack roll, and either moves,
                 // or attacks if their moveState dictates.
@@ -190,17 +244,6 @@ public class Thunderdome implements IThunderdome {
     }
 
     /**
-     * Rolls a 50/50 die to determine which of any two contestants will have their
-     * attack() method called for a given roll.
-     *
-     * @return boolean expressing which ICharacter will attack first
-     */
-    private boolean attackRoll() {
-        Random rand = new Random();
-        return rand.nextInt(0, 2) == 1;
-    }
-
-    /**
      * Tells whether the distance between two combatants has been closed.
      *
      * @return whether the combatants have closed range.
@@ -225,25 +268,8 @@ public class Thunderdome implements IThunderdome {
      * @return whether there is a winner in the Thunderdome at the time of calling
      */
     private boolean noWinner() {
-        // returns true
+        // returns true when both fighters are still valid combatants
         return currentFighters[0].inTheFight() && currentFighters[1].inTheFight();
-    }
-
-    /**
-     * Arm a character with
-     *
-     * @param weaponIndex
-     * @param character
-     */
-    @Override
-    public void armCharacter(int weaponIndex, ICharacter character) {
-
-        // remove the weapon from the weaponsRack, give it to the character
-        // and tell the weapon who its user is.
-        IWeapon weapon = this.getWeaponsRack().remove(weaponIndex);
-        character.setWeapon(weapon);
-        weapon.setUser(character);
-
     }
 
     /* #################################################################################### */
@@ -285,40 +311,6 @@ public class Thunderdome implements IThunderdome {
         }
     }
 
-    public ICharacter getVictoriousFighter() {
-
-        if (currentFighters[0] != null && currentFighters[0].inTheFight()) {
-            return this.currentFighters[0];
-        } else if (currentFighters[1] != null && currentFighters[1].inTheFight()) {
-            return this.currentFighters[1];
-        }
-
-        return null;
-    }
-
-    public ICharacter getDefeatedFighter() {
-
-        if (currentFighters[0] != null && !currentFighters[0].inTheFight()) {
-            return this.currentFighters[0];
-        } else if (currentFighters[1] != null && !currentFighters[1].inTheFight()) {
-            return this.currentFighters[1];
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Removes a weapon from the Thunderdome when it becomes unavailable.
-     */
-    @Override
-    public void removeWeapon(int indexOf) {
-
-        //todo: null guard input
-
-
-    }
-
     /**
      * Sets the distance between fighters that are in combat.
      *
@@ -340,12 +332,45 @@ public class Thunderdome implements IThunderdome {
      * @return whether there are any fighters in the Thunderdome
      */
     @Override
-    public Boolean fightersRemaining() {
+    public boolean fightersRemaining() {
         return (this.remainingContestants.size() > 0);
     }
 
+    /**
+     * Get the current fighters in this Thunderdome.
+     *
+     * @return the array (size 2) of current ICharacters that are in combat
+     */
     public ICharacter[] getCurrentFighters(){
         return this.currentFighters;
+    }
+
+    /**
+     * Gets the List of ICharacters that are still candidates to be placed into
+     * the Thunderdome (not currently fighting and not defeated).
+     *
+     * @return the List of ICharacters that are remaining in the Thunderdome
+     */
+    @Override
+    public List<ICharacter> getFightersRemaining() {
+        return this.remainingContestants;
+    }
+
+    /**
+     * Returns the victorious fighter from the Thunderdome after a battle. If
+     * both fighters are still in-combat with no victor, returns null.
+     *
+     * @return the victorious fighter from the Thunderdome if one exists
+     */
+    public ICharacter getVictoriousFighter() {
+
+        if (currentFighters[0] != null && currentFighters[0].inTheFight()) {
+            return this.currentFighters[0];
+        } else if (currentFighters[1] != null && currentFighters[1].inTheFight()) {
+            return this.currentFighters[1];
+        }
+
+        return null;
     }
 
     /**
@@ -355,11 +380,6 @@ public class Thunderdome implements IThunderdome {
      */
     public List<IWeapon> getWeaponsRack() {
         return this.weaponsRack;
-    }
-
-    @Override
-    public List<ICharacter> getFightersRemaining() {
-        return this.remainingContestants;
     }
 
 

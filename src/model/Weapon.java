@@ -49,11 +49,6 @@ public class Weapon implements IWeapon {
                     + "Encumbrance must be greater than or equal to 0.00");
         }
 
-
-        // 100, 80, 20
-
-
-
         this.name = name;
         this.meleeStrength = meleeStrength;
         this.durability = durability;
@@ -77,14 +72,20 @@ public class Weapon implements IWeapon {
         }
     }
 
-    @Override
-    public String getDescription() {
-        return null;
-    }
 
     /* ############################################################################### */
     /* ############################ Getter Methods ############################ */
     /* ############################################################################### */
+
+    /**
+     * Get the description of this weapon.
+     *
+     * @return the description of this weapon
+     */
+    @Override
+    public String getDescription() {
+        return this.description;
+    }
 
     /**
      * Gets the durability of this weapon, which expresses the "health" of this weapon.
@@ -146,6 +147,13 @@ public class Weapon implements IWeapon {
     /* ############################################################################### */
 
     /**
+     * Handles the behavior of this meleeWeapon once range has closed between two combatants (no change in behavior,
+     * implementing interface method).
+     */
+    @Override
+    public void handleHandToHand() {}
+
+    /**
      * Controls behavior for a Weapon hitting an attack, and stores the information about the successful
      * attack in the IAttackLog object that is passed in.
      *
@@ -181,6 +189,10 @@ public class Weapon implements IWeapon {
             // this weapon now has no (null) user
             bareHands.setUser(this.getUser());
             this.getUser().setWeapon(bareHands);
+
+            // because a character will only break a melee weapon while already in melee combat,
+            // their moveState will be false
+            this.getUser().setMoveState(false);
         }
     }
 
