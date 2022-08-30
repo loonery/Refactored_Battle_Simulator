@@ -14,7 +14,7 @@ public class AttackLog implements IAttackLog {
     // Initial values of the attack prior to more information
     private boolean attackerWeaponBreak = false;
     private boolean attackHit = false;
-    private double damageDone = -1.00;
+    private double damageDone = 0.00;
 
     private int distanceBetween;
 

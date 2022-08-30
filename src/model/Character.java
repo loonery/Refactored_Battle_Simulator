@@ -46,12 +46,12 @@ public class Character implements ICharacter {
         }
 
         // bound numerical inputs
-        if (strength <= 0 || strength > 1.00 ||
+        if (strength <= 0 ||
             walkingSpeed <= 0 ||
             combatProwess < 0 || combatProwess > 1.00
             || shootingAccuracyModifier < 0 || shootingAccuracyModifier > 1.00) {
-            throw new IllegalArgumentException("Illegal argument to Character constructor - invalid ranges on" +
-                    " numeric parameters.");
+            throw new IllegalArgumentException("Illegal argument to Character constructor - invalid values argued " +
+                    "on numeric parameters.");
         }
 
         this.name = name;
@@ -122,10 +122,13 @@ public class Character implements ICharacter {
      * the IThunderdome implementing model instance, which keeps track of the distance between
      * two fighters.
      *
+     * @param defender
      * @param fighterDistance the distance between two fighters in battle
+     * @param attackLog
+     *
      * @return the new distance after this Character moves
      */
-    public int move(int fighterDistance, IAttackLog attackLog) {
+    public int move(ICharacter defender, int fighterDistance, IAttackLog attackLog) {
 
         // The character's position is decremented by their walking speed
         fighterDistance -= this.getWalkingSpeed();
@@ -135,9 +138,16 @@ public class Character implements ICharacter {
 
         // if the fighters have closed range...
         if (fighterDistance <= 0) {
-            // clamp distance in the attackLog
-            attackLog.setDistanceBetween(0);
+
+            // clamp fighterDistance
+            fighterDistance = 0;
+            attackLog.setDistanceBetween(fighterDistance);
             attackLog.setRangeClosed(true);
+
+            // when distance is closed between two combatants, no
+            // character will try to move anymore
+            this.setMoveState(false);
+            defender.setMoveState(false);
         }
 
         return fighterDistance;

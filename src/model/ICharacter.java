@@ -11,7 +11,7 @@ public interface ICharacter {
 
     void attack(ICharacter defender, IAttackLog attackLog) throws IllegalArgumentException;
 
-    int move(int fighterDistance, IAttackLog attackLog);
+    int move(ICharacter character, int fighterDistance, IAttackLog attackLog);
 
     void takeDamage(double damage) throws IllegalArgumentException;
 

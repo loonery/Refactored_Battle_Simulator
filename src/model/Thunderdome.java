@@ -183,6 +183,14 @@ public class Thunderdome implements IThunderdome {
         ICharacter contestant1 = this.currentFighters[0];
         ICharacter contestant2 = this.currentFighters[1];
 
+        // the fighterDistance is always starting at 50
+        this.setFighterDistance(50);
+
+        // Each contestant has their weapon re-expressed at battle start
+        // to have their moveState reset from what it may have been in the past
+        contestant1.getWeapon().setUser(contestant1);
+        contestant2.getWeapon().setUser(contestant2);
+
         // While there is no winner in the battle...
         while (noWinner()) {
 
@@ -197,12 +205,13 @@ public class Thunderdome implements IThunderdome {
                 contestant1.getWeapon().handleHandToHand();
                 contestant2.getWeapon().handleHandToHand();
 
-                // Randomly determine who will attack in the case that the two
+                // Randomly determine which character will attack in the case that the two
                 // contestants are in melee combat
                 if (attackRoll) {
                     IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
                     battleLog.add(newAttackLog);
                     contestant1.attack(contestant2, newAttackLog);
+
                 } else {
                     IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
                     battleLog.add(newAttackLog);
@@ -212,30 +221,32 @@ public class Thunderdome implements IThunderdome {
             // case where the fighters have NOT closed ranged
             else
             {
-                // cases where contestant 1 lands the attack roll, and either moves,
-                // or attacks if their moveState dictates.
+                // cases where contestant 1 lands the attack roll and wants to attack
                 if (attackRoll && !contestant1.getMoveState()) {
                     IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
                     battleLog.add(newAttackLog);
                     contestant1.attack(contestant2, newAttackLog);
 
+                // cases where contestant 1 lands the attack roll and wants to move
                 } else if (attackRoll && contestant1.getMoveState()) {
                     IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
                     battleLog.add(newAttackLog);
-                    this.setFighterDistance(contestant1.move(this.getFighterDistance(), newAttackLog));
+                    this.setFighterDistance(contestant1.move(contestant2, this.getFighterDistance(), newAttackLog));
 
                 // cases where contestant 2 lands the attack roll, and either moves,
                 // or attacks if their moveState dictates.
                 } else if (!attackRoll && !contestant2.getMoveState()) {
 
+                    // attacker 2 gets the move, and wants to attack
                     IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
                     battleLog.add(newAttackLog);
                     contestant2.attack(contestant1, newAttackLog);
 
+                    // attacker 2 gets the move, and they want to move towards their opponent
                 } else if (!attackRoll && contestant2.getMoveState()) {
                     IAttackLog newAttackLog = new AttackLog(contestant2, contestant1, this.getFighterDistance());
                     battleLog.add(newAttackLog);
-                    this.setFighterDistance(contestant2.move(this.getFighterDistance(), newAttackLog));
+                    this.setFighterDistance(contestant2.move(contestant1, this.getFighterDistance(), newAttackLog));
                 }
             }
         }

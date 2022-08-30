@@ -105,11 +105,11 @@ public class ThunderdomeTextView implements IThunderdomeView {
     @Override
     public void renderAttackLog(IAttackLog attackLog) {
 
-        System.out.println("===============================");
+        System.out.println("_____________________________________________________________________");
 
         // Determine the action that was performed in the attack:
         //  A) the character moved, and did not attack
-        StringBuilder renderedAttackLog = new StringBuilder("\n\n");
+        StringBuilder renderedAttackLog = new StringBuilder("\n");
         if (attackLog.getAttackerMoveState()) {
 
             // render the character moving in text form

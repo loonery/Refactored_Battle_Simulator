@@ -65,13 +65,13 @@ public class ThunderdomeController implements IThunderdomeController {
         // select the first fighter that others will be pitted against
         this.readyFighter();
 
-        // todo: make output dynamic so that the user can see the fighter's name
+        // while there are fighters remaining
         while (this.getModel().fightersRemaining()) {
 
             // Select a fighter for every battle
             readyFighter();
 
-            // todo: have characters in the model battle
+            // active fighters battle via the model
             ArrayList<IAttackLog> battleLog = (ArrayList<IAttackLog>) this.getModel().battle();
 
             // render each attack that takes place during the battle
