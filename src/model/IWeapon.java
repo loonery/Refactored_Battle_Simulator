@@ -9,6 +9,7 @@ public interface IWeapon {
     /* ############################ Getter Methods ############################ */
     /* ############################################################################### */
 
+    boolean getAmmunitionGone();
 
     String getDescription();
 
@@ -21,6 +22,8 @@ public interface IWeapon {
     String getName();
 
     ICharacter getUser();
+
+    IWeapon getRangedVersion();
 
     boolean isBroken();
 
@@ -46,5 +49,7 @@ public interface IWeapon {
     /* ############################################################################### */
 
     void setUser(ICharacter user);
+
+    void setRangedVersion(IWeapon rangedVersion);
 
 }

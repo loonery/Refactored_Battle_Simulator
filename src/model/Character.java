@@ -1,4 +1,5 @@
 package model;
+
 import java.util.Random;
 
 /**
@@ -47,9 +48,9 @@ public class Character implements ICharacter {
 
         // bound numerical inputs
         if (strength <= 0 ||
-            walkingSpeed <= 0 ||
-            combatProwess < 0 || combatProwess > 1.00
-            || shootingAccuracyModifier < 0 || shootingAccuracyModifier > 1.00) {
+                walkingSpeed <= 0 ||
+                combatProwess < 0 || combatProwess > 1.00
+                || shootingAccuracyModifier < 0 || shootingAccuracyModifier > 1.00) {
             throw new IllegalArgumentException("Illegal argument to Character constructor - invalid values argued " +
                     "on numeric parameters.");
         }
@@ -99,7 +100,8 @@ public class Character implements ICharacter {
             double weaponDamageRoll = this.getWeapon().rollWeaponDamage();
 
             // the total damage is the total weapon damage + the character's randomly drawn strength
-            double totalAttackDamage = weaponDamageRoll + rand.nextFloat(LOWER_BOUND_STRENGTH_DAMAGE, this.getStrength());
+            double totalAttackDamage = weaponDamageRoll + rand.nextFloat(LOWER_BOUND_STRENGTH_DAMAGE,
+                    this.getStrength());
             defender.takeDamage(totalAttackDamage);
             attackLog.setDamageDone(totalAttackDamage);
 
@@ -122,11 +124,11 @@ public class Character implements ICharacter {
      * the IThunderdome implementing model instance, which keeps track of the distance between
      * two fighters.
      *
-     * @param defender
+     * @param defender        the ICharacter that this character is moving towards in battle
      * @param fighterDistance the distance between two fighters in battle
-     * @param attackLog
+     * @param attackLog       the attackLog that is recording information about the battle this move took place in
      *
-     * @return the new distance after this Character moves
+     * @return the new distance between the two fighters after this Character moves
      */
     public int move(ICharacter defender, int fighterDistance, IAttackLog attackLog) {
 
@@ -282,6 +284,24 @@ public class Character implements ICharacter {
      */
     public void setMoveState(boolean moveState) {
         this.moveState = moveState;
+    }
+
+    /**
+     * Resets ICharacter implementing object instances between rounds in the Thunderdome.
+     */
+    public void resetCharacter() {
+
+        // reset case for ranged weapons - if a Character was using a ranged weapon as a melee weapon at the end of
+        // the last round of battle, but their ranged weapon is still valid as a ranged weapon, they will switch back
+        // to that weapon between rounds
+        IWeapon rangedVersion = this.getWeapon().getRangedVersion();
+        if (rangedVersion != null && !rangedVersion.isBroken() && !rangedVersion.getAmmunitionGone()) {
+            this.setWeapon(rangedVersion);
+            rangedVersion.setUser(this);
+        }
+
+        // this weapon sets the user
+        this.getWeapon().setUser(this);
     }
 
     /**

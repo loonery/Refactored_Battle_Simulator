@@ -43,5 +43,7 @@ public interface ICharacter {
 
     void setMoveState(boolean moveState);
 
+    void resetCharacter();
+
     void setWeapon(IWeapon weapon);
 }

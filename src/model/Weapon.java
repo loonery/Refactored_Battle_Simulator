@@ -17,10 +17,11 @@ public class Weapon implements IWeapon {
     private final int DURABILITY_BREAKING_POINT = 0;    // if durability of any weapon hits this point it breaks
     private final int LOWER_BOUND_MELEE_DAMAGE = 1;     // the minimum damage that any melee attack can do if it hits
 
-    private int durability;             // durability acts as the "hit points" of a Weapon object
-    private double encumbrance;         // the encumbrance of a weapon impacts the user's ability to land an attack
-    private ICharacter user;            // the user of this weapon
-    private Boolean broken = false;     // the status of the weapon as broken or not broken
+    private int durability;                 // durability acts as the "hit points" of a Weapon object
+    private double encumbrance;             // the encumbrance of a weapon impacts the user's ability to land an attack
+    private ICharacter user;                // the user of this weapon
+    private IWeapon rangedVersion;   // the ranged version of this MeleeWeapon if it exists
+    private Boolean broken = false;         // the status of the weapon as broken or not broken
 
     /* ##################################################################### */
     /* ############################ Constructor ############################ */
@@ -54,6 +55,9 @@ public class Weapon implements IWeapon {
         this.durability = durability;
         this.encumbrance = encumbrance;
         this.description = description;
+
+        // the rangedVersion of a meleeWeapon is just itself
+        this.setRangedVersion(this);
     }
 
 
@@ -72,17 +76,25 @@ public class Weapon implements IWeapon {
         }
     }
 
-
     /* ############################################################################### */
     /* ############################ Getter Methods ############################ */
     /* ############################################################################### */
+
+    /**
+     * Returns whether this meleeWeapon is out of ammunition. Tautology for melee weapons.
+     *
+     * @return true
+     */
+    @Override
+    public boolean getAmmunitionGone() {
+        return true;
+    }
 
     /**
      * Get the description of this weapon.
      *
      * @return the description of this weapon
      */
-    @Override
     public String getDescription() {
         return this.description;
     }
@@ -133,6 +145,16 @@ public class Weapon implements IWeapon {
     }
 
     /**
+     * Returns the ranged version of this weapon, if it exists. Otherwise, returns null. Only useful for melee
+     * versions of Ranged Weapons to retrieve their original manifestations as ranged weapons.
+     *
+     * @return the ranged version of this IWeapon, if it exists.
+     */
+    public IWeapon getRangedVersion() {
+        return this.rangedVersion;
+    }
+
+    /**
      * Returns whether this Weapon is broken.
      *
      * @return whether this weapon is broken
@@ -147,11 +169,12 @@ public class Weapon implements IWeapon {
     /* ############################################################################### */
 
     /**
-     * Handles the behavior of this meleeWeapon once range has closed between two combatants (no change in behavior,
-     * implementing interface method).
+     * Handles the behavior of this meleeWeapon once range has closed between
+     * two combatants (no change in behavior, implementing interface method).
      */
     @Override
-    public void handleHandToHand() {}
+    public void handleHandToHand() {
+    }
 
     /**
      * Controls behavior for a Weapon hitting an attack, and stores the information about the successful
@@ -256,5 +279,17 @@ public class Weapon implements IWeapon {
         // moveState set to true, reflecting that they are trying
         // to close range with their opponent.
         this.getUser().setMoveState(true);
+    }
+
+    /**
+     * Sets the ranged version of this weapon. This method will only be called by RangedWeapon object instances such
+     * that the melee version of RangedWeapon objects "remembers" the ranged version of itself. This is done so that
+     * if the melee version is only being used because range was closed between ICharacters, the ranged version can
+     * be accessed again after conclusion of the battle where range was closed.
+     *
+     * @param rangedVersion the ranged version of this IWeapon
+     */
+    public void setRangedVersion(IWeapon rangedVersion) {
+        this.rangedVersion = this;
     }
 }

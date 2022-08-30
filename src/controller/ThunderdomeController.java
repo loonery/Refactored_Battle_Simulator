@@ -5,7 +5,6 @@ import model.ICharacter;
 import model.IThunderdome;
 import view.IThunderdomeView;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -15,6 +14,12 @@ import java.util.ArrayList;
 import java.util.MissingResourceException;
 import java.util.Scanner;
 
+import static java.lang.Thread.sleep;
+
+/**
+ * ThunderdomeController implements the IThunderdomeController interface to act as an intermediary between the
+ * Thunderdome Model and the Thunderdome View.
+ */
 public class ThunderdomeController implements IThunderdomeController {
 
     // The gameContent folder is held as a constant
@@ -35,6 +40,7 @@ public class ThunderdomeController implements IThunderdomeController {
      *
      * @param thunderdomeInstance the thunderdome instance
      * @param thunderdomeView     the thunderdome view
+     *
      * @throws IllegalArgumentException when view or controller are null
      * @throws IOException              when game content file is valid
      */
@@ -77,7 +83,7 @@ public class ThunderdomeController implements IThunderdomeController {
             // render each attack that takes place during the battle
             this.getView().displayBeginBattle();
             for (IAttackLog attackLog : battleLog) {
-                Thread.sleep(MILLISECONDS_BETWEEN_ATTACK_RENDERS);
+                sleep(MILLISECONDS_BETWEEN_ATTACK_RENDERS);
                 this.getView().renderAttackLog(attackLog);
             }
 
@@ -92,7 +98,22 @@ public class ThunderdomeController implements IThunderdomeController {
     }
 
     /**
-     *
+     * Regulates the selection of an ICharacter in the Thunderdome Game Loop.
+     */
+    private ICharacter characterSelection() {
+
+        // todo: guard against out of bounds input, or otherwise incorrect input
+
+        // place the selected fighter into the arena
+        Scanner scanner = new Scanner(System.in);
+        int selectedCharacter = scanner.nextInt() - 1;
+        return this.getModel().placeFighterIntoArena(selectedCharacter);
+
+    }
+
+    /**
+     * Helper method regulates the selection of both fighters and their respective weapons by calling the
+     * fighterSelection routine, saving the selected fighter, and passing them to the weaponSelection routine.
      */
     private void readyFighter() {
 
@@ -119,20 +140,6 @@ public class ThunderdomeController implements IThunderdomeController {
         Scanner scanner = new Scanner(System.in);
         int selectedWeapon = scanner.nextInt() - 1;
         this.getModel().armCharacter(selectedWeapon, user);
-    }
-
-    /**
-     * Regulates the selection of an ICharacter in the Thunderdome Game Loop.
-     */
-    private ICharacter characterSelection() {
-
-        // todo: guard against out of bounds input, or otherwise incorrect input
-
-        // place the selected fighter into the arena
-        Scanner scanner = new Scanner(System.in);
-        int selectedCharacter = scanner.nextInt() - 1;
-        return this.getModel().placeFighterIntoArena(selectedCharacter);
-
     }
 
 
@@ -167,6 +174,7 @@ public class ThunderdomeController implements IThunderdomeController {
      * to its associated Constructor (via the model) in order to populate the model.
      *
      * @param gameContentFolder the game content folder
+     *
      * @throws MissingResourceException when a necessary game content file is missing
      */
     public void loadModel(Path gameContentFolder) throws RuntimeException, IOException {

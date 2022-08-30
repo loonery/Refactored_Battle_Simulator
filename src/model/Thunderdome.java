@@ -21,6 +21,10 @@ public class Thunderdome implements IThunderdome {
     // defeated with some other contestant
     private ICharacter[] currentFighters;
 
+    private final int CHARACTER_ARGS_LENGTH = 6;
+    private final int MELEE_WEAPON_ARGS_LENGTH = 5;
+    private final int RANGED_WEAPON_ARGS_LENGTH = 8;
+
     /* #################################################################################### */
     /* #################################### Constructor ################################### */
     /* #################################################################################### */
@@ -52,7 +56,7 @@ public class Thunderdome implements IThunderdome {
         }
 
         // guard args length
-        if (args.length != 6) {
+        if (args.length != CHARACTER_ARGS_LENGTH) {
             throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
                     "arguments");
         }
@@ -67,7 +71,7 @@ public class Thunderdome implements IThunderdome {
 
         // create the character with the passed arguments and add them to the game
         ICharacter addedCharacter = new Character(name, strength, walkingSpeed, shootingAccuracyModifier,
-                                                    combatProwess, bio);
+                combatProwess, bio);
         this.remainingContestants.add(addedCharacter);
     }
 
@@ -85,7 +89,7 @@ public class Thunderdome implements IThunderdome {
         }
 
         // guard args length
-        if (args.length != 5) {
+        if (args.length != MELEE_WEAPON_ARGS_LENGTH) {
             throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
                     "arguments");
         }
@@ -117,7 +121,7 @@ public class Thunderdome implements IThunderdome {
         }
 
         // guard args length
-        if (args.length != 8) {
+        if (args.length != RANGED_WEAPON_ARGS_LENGTH) {
             throw new IllegalArgumentException("the length of the Character constructor arguments array must have 6 " +
                     "arguments");
         }
@@ -136,7 +140,7 @@ public class Thunderdome implements IThunderdome {
 
         // create the weapon with the passed arguments and add it to the game
         IWeapon addedWeapon = new RangedWeapon(name, meleeStrength, durability, encumbrance, rangedStrength,
-                                                ammunition, accuracy, description);
+                                               ammunition, accuracy, description);
         this.weaponsRack.add(addedWeapon);
 
     }
@@ -149,7 +153,7 @@ public class Thunderdome implements IThunderdome {
      * Arm a character with a specific weapon and remove that weapon from the Weapons rack.
      *
      * @param weaponIndex the index of the weapon in the weaponsRack
-     * @param character the ICharacter instance to which the selected IWeapon object will be assigned
+     * @param character   the ICharacter instance to which the selected IWeapon object will be assigned
      */
     @Override
     public void armCharacter(int weaponIndex, ICharacter character) {
@@ -186,10 +190,8 @@ public class Thunderdome implements IThunderdome {
         // the fighterDistance is always starting at 50
         this.setFighterDistance(50);
 
-        // Each contestant has their weapon re-expressed at battle start
-        // to have their moveState reset from what it may have been in the past
-        contestant1.getWeapon().setUser(contestant1);
-        contestant2.getWeapon().setUser(contestant2);
+        contestant1.resetCharacter();
+        contestant2.resetCharacter();
 
         // While there is no winner in the battle...
         while (noWinner()) {
@@ -219,22 +221,21 @@ public class Thunderdome implements IThunderdome {
                 }
             }
             // case where the fighters have NOT closed ranged
-            else
-            {
+            else {
                 // cases where contestant 1 lands the attack roll and wants to attack
                 if (attackRoll && !contestant1.getMoveState()) {
                     IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
                     battleLog.add(newAttackLog);
                     contestant1.attack(contestant2, newAttackLog);
 
-                // cases where contestant 1 lands the attack roll and wants to move
+                    // cases where contestant 1 lands the attack roll and wants to move
                 } else if (attackRoll && contestant1.getMoveState()) {
                     IAttackLog newAttackLog = new AttackLog(contestant1, contestant2, this.getFighterDistance());
                     battleLog.add(newAttackLog);
                     this.setFighterDistance(contestant1.move(contestant2, this.getFighterDistance(), newAttackLog));
 
-                // cases where contestant 2 lands the attack roll, and either moves,
-                // or attacks if their moveState dictates.
+                    // cases where contestant 2 lands the attack roll, and either moves,
+                    // or attacks if their moveState dictates.
                 } else if (!attackRoll && !contestant2.getMoveState()) {
 
                     // attacker 2 gets the move, and wants to attack
@@ -352,7 +353,7 @@ public class Thunderdome implements IThunderdome {
      *
      * @return the array (size 2) of current ICharacters that are in combat
      */
-    public ICharacter[] getCurrentFighters(){
+    public ICharacter[] getCurrentFighters() {
         return this.currentFighters;
     }
 

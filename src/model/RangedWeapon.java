@@ -3,7 +3,7 @@ package model;
 import java.util.Random;
 
 /**
- * The RangedWeapon class
+ * The RangedWeapon class extends the Weapon class. Despite quite different behavior than
  */
 public class RangedWeapon extends Weapon {
 
@@ -22,13 +22,13 @@ public class RangedWeapon extends Weapon {
      * Creates a Weapon object implementing the IWeapon object to be used by a Character implementing class.
      * A Weapon object's attributes will influence a character's attack
      *
-     * @param name The name of this IWeapon object
-     * @param meleeStrength the strength of this weapon when used in a melee context
-     * @param durability the durability of this weapon. Drains linearly
-     * @param encumbrance the level to which this weapon impacts hit-chance of an attack when used
+     * @param name           The name of this IWeapon object
+     * @param meleeStrength  the strength of this weapon when used in a melee context
+     * @param durability     the durability of this weapon. Drains linearly
+     * @param encumbrance    the level to which this weapon impacts hit-chance of an attack when used
      * @param rangedStrength the ability of the weapon to inflict ranged damage
-     * @param ammunition the ammunition that the weapon has available
-     * @param accuracy the ease of ability to hit an attack with this weapon
+     * @param ammunition     the ammunition that the weapon has available
+     * @param accuracy       the ease of ability to hit an attack with this weapon
      */
     public RangedWeapon(String name, int meleeStrength, int durability, int encumbrance,
                         int rangedStrength, int ammunition, double accuracy, String description) {
@@ -46,8 +46,11 @@ public class RangedWeapon extends Weapon {
         this.ammunition = ammunition;
 
         // The melee version of a Ranged Weapon is used when the ranged version breaks or runs out of ammo
-        this.meleeVersion = new Weapon(this.getName(), this.getMeleeStrength(), this.getDurability(),
-                                       this.getEncumbrance(), this.getName() + "'s melee manifestation");
+        this.meleeVersion = new Weapon(this.getName() + "'s melee manifestation", this.getMeleeStrength(),
+                this.getDurability(), this.getEncumbrance(), this.getName() + "'s melee manifestation");
+
+        // the meleeVersions' rangedVersion is this.
+        this.meleeVersion.setRangedVersion(this);
     }
 
     /* ############################################################################### */
@@ -61,6 +64,15 @@ public class RangedWeapon extends Weapon {
      */
     private int getAmmunition() {
         return this.ammunition;
+    }
+
+    /**
+     * Tells whether this rangedWeapon is out of ammunition.
+     *
+     * @return whether this rangedWeapon is out of ammunition
+     */
+    public boolean getAmmunitionGone() {
+        return this.getAmmunition() == 0;
     }
 
     /**
@@ -127,9 +139,9 @@ public class RangedWeapon extends Weapon {
             // weapon
             this.getMeleeVersion().setUser(this.getUser());
             this.getUser().setWeapon(this.getMeleeVersion());
-        }
-        else if (this.getAmmunition() == 0)
-        {
+
+        } else if (this.getAmmunition() == 0) {
+
             // record the event in the attackLog
             attackLog.setAmmunitionGone(true);
 

@@ -26,8 +26,6 @@ public interface IThunderdomeView {
 
     void displayMovement();
 
-    void displayWeaponBreak(IAttackLog attackLog, StringBuilder renderedAttackLog);
-
     void displayWeaponSelectionScreen(List<IWeapon> weapons, ICharacter characterToArm);
 
     void displayWelcomeScreen() throws InterruptedException;
